@@ -1,4 +1,17 @@
 import { test, expect } from '@playwright/test';
+let authToken: string;
+
+test.beforeAll('Run before all tests', async ({request}) => {
+  const tokenResponse = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
+    data: { "user": { "email": "1pwtest101@test.com", "password": "1pwtest101@test.com" } }
+  });
+  const tokenResponseJSON = await tokenResponse.json();
+  authToken = 'Token ' + tokenResponseJSON.user.token;
+})
+
+// test.afterAll('Run after all tests', async ({}) => {
+//   console.log('Executed after all tests');
+// })
 
 test('GET test tags', async ({ request }) => {
   const tagsResponse = await request.get('https://conduit-api.bondaracademy.com/api/tags')
@@ -8,7 +21,7 @@ test('GET test tags', async ({ request }) => {
   expect(tagsResponse.ok()).toBeTruthy();
   expect(tagsResponseJSON.tags[0]).toEqual('Test')
   expect(tagsResponseJSON.tags.length).toBeLessThanOrEqual(10);
-  console.log(tagsResponseJSON);
+  //console.log(tagsResponseJSON);
 });
 
 test('GET list of articles', async ({ request }) => {
@@ -20,16 +33,11 @@ test('GET list of articles', async ({ request }) => {
   // expect(articlesResponseJSON.tags[0]).toEqual('Articles')
   expect(articlesResponseJSON.articles.length).toBeLessThanOrEqual(10);
   expect(articlesResponseJSON.articlesCount).toEqual(10)
-  console.log(articlesResponseJSON);
+  //console.log(articlesResponseJSON);
 });
 
 
 test('create and delete article', async ({ request }) => {
-  const tokenResponse = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
-    data: { "user": { "email": "1pwtest101@test.com", "password": "1pwtest101@test.com" } }
-  });
-  const tokenResponseJSON = await tokenResponse.json();
-  const authToken = 'Token ' + tokenResponseJSON.user.token;
   // console.log(authToken);
 
   const newArticleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles', {
@@ -69,12 +77,7 @@ test('create and delete article', async ({ request }) => {
 })
 
 test('create, update and delete article', async ({ request }) => {
-  const tokenResponse = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
-    data: { "user": { "email": "1pwtest101@test.com", "password": "1pwtest101@test.com" } }
-  });
-  const tokenResponseJSON = await tokenResponse.json();
-  const authToken = 'Token ' + tokenResponseJSON.user.token;
-  // console.log(authToken);
+    // console.log(authToken);
 
   const newArticleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles', {
     data: {
