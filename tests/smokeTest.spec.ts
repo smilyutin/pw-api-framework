@@ -10,6 +10,7 @@ test.beforeAll('Get token', async ({ api, config }) => {
         .body({ "user": { "email": config.userEmail, "password": config.userPassword } })
         .postRequest(200)
     authToken = 'Token ' + tokenSerponse.user.token;
+    console.log(tokenSerponse.user)
 });
 test('Get Articles', async ({ api }) => {
     const response = await api
