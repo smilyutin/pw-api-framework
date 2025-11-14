@@ -70,6 +70,7 @@ export class RequestHandler {
         const response = await this.request?.get(url, {
             headers: this.apiHeaders,
         })
+        this.cleanupFields()
         const actualStatus = response?.status()!
         const responseJSON = await response?.json()
         // Log response with redacted body (tokens, passwords masked)
@@ -89,6 +90,7 @@ export class RequestHandler {
             headers: this.apiHeaders,
             data: this.apiBody
         })
+        this.cleanupFields()
         const actualStatus = response?.status()!
         const responseJSON = await response?.json()
         // Log response with masked secrets
@@ -108,7 +110,7 @@ export class RequestHandler {
             headers: this.apiHeaders,
             data: this.apiBody
         })
-
+        this.cleanupFields()
         const actualStatus = response?.status()!
         const responseJSON = await response?.json()
         // Log response
@@ -127,6 +129,7 @@ export class RequestHandler {
         const response = await this.request?.delete(url, {
             headers: this.apiHeaders
         })
+        this.cleanupFields()
         const actualStatus = response?.status()!
         // Log response (typically no body for DELETE)
         this.logger.logResponse(actualStatus, {}, undefined)
@@ -157,6 +160,14 @@ export class RequestHandler {
             Error.captureStackTrace(error, callingMethod);
             throw error
         }
+    }
+
+    private cleanupFields(){
+        this.baseUrl = undefined;
+        this.apiPath = '';
+        this.queryParams = {};
+        this.apiHeaders = {};
+        this.apiBody = {};
     }
 
 }   

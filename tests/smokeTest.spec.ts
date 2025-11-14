@@ -1,16 +1,18 @@
 import { test } from '../utils/fixtures'
 import { expect } from '../utils/custom-expect'
+import { createToken } from '../helpers/createToken';
 
 
 let authToken: string;
 
 test.beforeAll('Get token', async ({ api, config }) => {
-    const tokenSerponse = await api
-        .path('/users/login')
-        .body({ "user": { "email": config.userEmail, "password": config.userPassword } })
-        .postRequest(200)
-    authToken = 'Token ' + tokenSerponse.user.token;
-    console.log(tokenSerponse.user)
+    // const tokenSerponse = await api
+    //     .path('/users/login')
+    //     .body({ "user": { "email": config.userEmail, "password": config.userPassword } })
+    //     .postRequest(200)
+    // authToken = 'Token ' + tokenSerponse.user.token;
+    // console.log(tokenSerponse.user)
+    authToken = await createToken(config.userEmail, config.userPassword);
 });
 test('Get Articles', async ({ api }) => {
     const response = await api
@@ -19,14 +21,21 @@ test('Get Articles', async ({ api }) => {
         .getRequest(200)
     expect(response.articles.length).shouldBeLessThanOrEqual(10)
     expect(response.articlesCount).shouldEqual(10)
-})
-test('Get Test Tags', async ({ api }) => {
-    const response = await api
+
+    const response2 = await api
         .path('/tags')
         .getRequest(200)
-    expect(response.tags[0]).shouldEqual('Test')
-    expect(response.tags.length).toBeLessThanOrEqual(10)
+    expect(response2.tags[0]).shouldEqual('Test')
+    expect(response2.tags.length).toBeLessThanOrEqual(10)
+
 })
+// test('Get Test Tags', async ({ api }) => {
+//     const response = await api
+//         .path('/tags')
+//         .getRequest(200)
+//     expect(response.tags[0]).shouldEqual('Test')
+//     expect(response.tags.length).toBeLessThanOrEqual(10)
+// })
 test('Create and Delete Article', async ({ api }) => {
     const createArticleResponse = await api
         .path('/articles')
