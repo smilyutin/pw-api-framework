@@ -1,0 +1,16 @@
+title = "PW API Framework Gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignore build artifacts"
+paths = [
+  "playwright-report/",
+  "test-results/",
+  "node_modules/",
+  ".husky/_/"
+]
+regexes = [
+  "(?i)example|dummy|placeholder|sample"
+]
