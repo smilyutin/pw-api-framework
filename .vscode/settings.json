@@ -1,0 +1,11 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "/mcp-servers.json",
+        "mcp-servers.json"
+      ],
+      "url": "./schemas/mcp-servers.v1.json"
+    }
+  ]
+}

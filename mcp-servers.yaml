@@ -1,0 +1,33 @@
+# MCP servers configuration (YAML equivalent of mcp-servers.json)
+# Note: Keep your token in the environment. Do not paste it here.
+$schema: ./schemas/mcp-servers.v1.json
+version: 1
+servers:
+  github:
+    type: python
+    command: python
+    args: ["-m", "mcp_servers.github"]
+    env:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_DEFAULT_REPO: smilyutin/pw-api-framework
+    metadata:
+      description: GitHub MCP server providing repo content, issues, PR metadata, code search, and commit history.
+      capabilities: [readRepo, searchCode, listIssues, listPulls, createIssue, commentPull]
+  github-search:
+    type: node
+    command: node
+    args: ["./servers/github-search/index.js"]
+    env:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      SEARCH_DEFAULT_REPO: smilyutin/pw-api-framework
+    metadata:
+      description: Lightweight GitHub code search MCP server for high-speed scoped semantic queries.
+      capabilities: [searchCode, getFile]
+profiles:
+  default: [github, github-search]
+  minimal: [github-search]
+  full: [github, github-search]
+notes:
+  - Replace ${GITHUB_TOKEN} with an exported env var (repo:read scope).
+  - Add additional servers under 'servers' with unique keys.
+  - Profiles define which servers to activate together.
