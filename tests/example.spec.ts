@@ -43,7 +43,7 @@ test('create and delete article', async ({ request }) => {
   const newArticleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles', {
     data: {
       "article": {
-        "title": "Title",
+        "title": "Title New",
         "description": "New About",
         "body": "My big fat article here",
         "tagList": ["My Tags"]
@@ -56,7 +56,7 @@ test('create and delete article', async ({ request }) => {
   const newArticleResponseJSON = await newArticleResponse.json();
   // console.log(newArticleResponseJSON);
   expect(newArticleResponse.status()).toEqual(201);
-  expect(newArticleResponseJSON.article.title).toEqual("Title");
+  expect(newArticleResponseJSON.article.title).toEqual("Title New");
   const slagID = newArticleResponseJSON.article.slug;
 
   const articlesResponse = await request.get('https://conduit-api.bondaracademy.com/api/articles?limit=10&offset=0', {

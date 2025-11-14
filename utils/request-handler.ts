@@ -52,10 +52,11 @@ export class RequestHandler {
         })
         const actualStatus = response?.status()!
         const responseJSON = await response?.json()
-        this.logger.logResponse(actualStatus, responseJSON)
+        this.logger.logResponse(actualStatus, {}, responseJSON)
         this.statusCodeValidator(statusCode, actualStatus, this.getRequest)
+  
 
-        return responseJSON
+       return responseJSON
     }
 
     async postRequest(statusCode: number) {
@@ -67,7 +68,7 @@ export class RequestHandler {
         })
         const actualStatus = response?.status()!
         const responseJSON = await response?.json()
-        this.logger.logResponse(actualStatus, responseJSON)
+        this.logger.logResponse(actualStatus, {}, responseJSON)
         this.statusCodeValidator(statusCode, actualStatus, this.postRequest)
 
         return responseJSON
@@ -83,7 +84,7 @@ export class RequestHandler {
 
         const actualStatus = response?.status()!
         const responseJSON = await response?.json()
-        this.logger.logResponse(actualStatus, responseJSON)
+        this.logger.logResponse(actualStatus, {}, responseJSON)
         this.statusCodeValidator(statusCode, actualStatus, this.putRequest)
 
 
@@ -92,12 +93,12 @@ export class RequestHandler {
 
     async deleteRequest(statusCode: number) {
         const url = this.getURL()
-        this.logger?.logRequest('DELETE', url, this.apiHeaders)
+        this.logger.logRequest('DELETE', url, this.apiHeaders)
         const response = await this.request?.delete(url, {
             headers: this.apiHeaders
         })
         const actualStatus = response?.status()!
-        this.logger.logResponse(actualStatus, {})
+        this.logger.logResponse(actualStatus, {}, undefined)
         this.statusCodeValidator(statusCode, actualStatus, this.deleteRequest)
     }
     private getURL() {
@@ -113,7 +114,7 @@ export class RequestHandler {
     private statusCodeValidator(expectedStatus: number, actualStatus: number, callingMethod: Function) {
         if (expectedStatus !== actualStatus) {
             const logs = this.logger.getRecentLogs();
-            const error = new Error(`Expected status code ${expectedStatus}, but got ${actualStatus}\n\nRecent API Logs:\n\n${logs}`);
+            const error = new Error(`Expected status ${expectedStatus}, but got ${actualStatus}\n\nRecent API Logs:\n\n${logs}`);
             Error.captureStackTrace(error, callingMethod);
             throw error
         }
