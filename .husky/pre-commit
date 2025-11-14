@@ -1,0 +1,24 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running gitleaks (pre-commit)…"
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner -v -c .gitleaks.toml || {
+    echo "gitleaks detected potential secrets. Commit aborted." >&2
+    exit 1
+  }
+else
+  if command -v docker >/dev/null 2>&1; then
+    docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest detect \
+      --source=/repo --staged --redact -v -c /repo/.gitleaks.toml || {
+      echo "gitleaks (docker) detected potential secrets. Commit aborted." >&2
+      exit 1
+    }
+  else
+    echo "gitleaks not found. Install via 'brew install gitleaks' or ensure Docker is available." >&2
+    exit 1
+  fi
+fi
+
+echo "gitleaks passed. Proceeding with commit."
