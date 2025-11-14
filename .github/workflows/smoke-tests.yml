@@ -17,15 +17,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Mask GitHub token
-        env:
-          # Use built-in GitHub token to avoid actionlint 'secrets' context error
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            echo "::add-mask::${GITHUB_TOKEN}"
-          fi
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -41,8 +32,6 @@ jobs:
       - name: Run smoke test (smokeTest.spec.ts)
         env:
           CI: true
-          # Provide token if tests or tooling need it (masked by Actions)
-          GITHUB_TOKEN: ${{ github.token }}
         run: npx playwright test tests/smokeTest.spec.ts --reporter=line
 
       - name: Upload Playwright HTML report
