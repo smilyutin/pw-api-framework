@@ -24,35 +24,38 @@ export class RequestHandler {
     private apiHeaders: Record<string, string> = {}
     // Request body for POST/PUT
     private apiBody: object = {}
+    private defaultAuthToken: string
+    private clearAuthFlag: boolean | undefined
 
     // Initialize with Playwright request context, logger, and default base URL
-    constructor(request: APIRequestContext, logger: APILogger, baseUrl: string) {
+    constructor(request: APIRequestContext, logger: APILogger, baseUrl: string, authToken: string = '') {
         this.request = request
         this.defaultBaseUrl = baseUrl
         this.logger = logger
+        this.defaultAuthToken = authToken
     }
 
     // Set a custom base URL for this request (overrides default)
     url(url: string) {
-        this.baseUrl = url;
-        return this;
+        this.baseUrl = url
+        return this
     }
 
     // Set the API endpoint path (e.g., '/articles', '/users/login')
     path(path: string) {
-        this.apiPath = path;
+        this.apiPath = path
         return this;
     }
 
     // Set query parameters (e.g., { limit: 10, offset: 0 })
     params(params: object) {
-        this.queryParams = params;
+        this.queryParams = params
         return this;
     }
 
     // Set HTTP headers (e.g., { Authorization: 'Token abc123' })
     headers(headers: Record<string, string>) {
-        this.apiHeaders = headers;
+        this.apiHeaders = headers
         return this;
     }
 
@@ -62,13 +65,18 @@ export class RequestHandler {
         return this;
     }
 
+    clearAuth() {
+        this.clearAuthFlag = true
+        return this
+    }
+
     // Execute GET request, log it, validate status, and return parsed JSON response
     async getRequest(statusCode: number) {
         const url = this.getURL()
         // Log outgoing request with redacted sensitive headers
-        this.logger?.logRequest('GET', url, this.apiHeaders)
+        this.logger?.logRequest('GET', url, this.getHeaders())
         const response = await this.request?.get(url, {
-            headers: this.apiHeaders,
+            headers: this.getHeaders(),
         })
         this.cleanupFields()
         const actualStatus = response?.status()!
@@ -78,16 +86,16 @@ export class RequestHandler {
         // Throw error with logs if status doesn't match expected
         this.statusCodeValidator(statusCode, actualStatus, this.getRequest)
 
-       return responseJSON
+        return responseJSON
     }
 
     // Execute POST request with body, log it, validate status, and return parsed JSON response
     async postRequest(statusCode: number) {
         const url = this.getURL()
         // Log request including body (sensitive fields redacted)
-        this.logger?.logRequest('POST', url, this.apiHeaders, this.apiBody)
+        this.logger?.logRequest('POST', url, this.getHeaders(), this.apiBody)
         const response = await this.request?.post(url, {
-            headers: this.apiHeaders,
+            headers: this.getHeaders(),
             data: this.apiBody
         })
         this.cleanupFields()
@@ -105,9 +113,9 @@ export class RequestHandler {
     async putRequest(statusCode: number) {
         const url = this.getURL()
         // Log PUT request with redacted body
-        this.logger?.logRequest('PUT', url, this.apiHeaders, this.apiBody)
+        this.logger?.logRequest('PUT', url, this.getHeaders(), this.apiBody)
         const response = await this.request?.put(url, {
-            headers: this.apiHeaders,
+            headers: this.getHeaders(),
             data: this.apiBody
         })
         this.cleanupFields()
@@ -125,9 +133,9 @@ export class RequestHandler {
     async deleteRequest(statusCode: number) {
         const url = this.getURL()
         // Log DELETE request
-        this.logger.logRequest('DELETE', url, this.apiHeaders)
+        this.logger.logRequest('DELETE', url, this.getHeaders())
         const response = await this.request?.delete(url, {
-            headers: this.apiHeaders
+            headers: this.getHeaders()
         })
         this.cleanupFields()
         const actualStatus = response?.status()!
@@ -142,11 +150,11 @@ export class RequestHandler {
         const url = new URL(`${this.baseUrl ?? this.defaultBaseUrl}${this.apiPath}`)
         // Append query parameters to the URL
         for (const [key, value] of Object.entries(this.queryParams)) {
-            url.searchParams.append(key, value);
+            url.searchParams.append(key, value)
         }
         // Log the final URL for debugging
-        console.log(url.toString());
-        return url.toString();
+        console.log(url.toString())
+        return url.toString()
     }
 
     // Validate HTTP status code and throw enriched error with API logs if mismatch
@@ -157,17 +165,25 @@ export class RequestHandler {
             // Build error message with expected vs actual status and full logs
             const error = new Error(`Expected status ${expectedStatus}, but got ${actualStatus}\n\nRecent API Logs:\n\n${logs}`);
             // Clean stack trace by excluding this validator from the trace
-            Error.captureStackTrace(error, callingMethod);
+            Error.captureStackTrace(error, callingMethod)
             throw error
         }
     }
 
-    private cleanupFields(){
-        this.baseUrl = undefined;
-        this.apiPath = '';
-        this.queryParams = {};
-        this.apiHeaders = {};
-        this.apiBody = {};
+    private getHeaders() {
+        if (!this.clearAuthFlag) {
+            this.apiHeaders['Authorization'] = this.apiHeaders['Authorization'] || this.defaultAuthToken
+        }
+        return this.apiHeaders
+
+    }
+    private cleanupFields() {
+        this.baseUrl = undefined
+        this.apiPath = ''
+        this.queryParams = {}
+        this.apiHeaders = {}
+        this.apiBody = {}
+        this.clearAuthFlag = false
     }
 
 }   
