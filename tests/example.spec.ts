@@ -66,7 +66,7 @@ test('create and delete article', async ({ request }) => {
   });
   const articlesResponseJSON = await articlesResponse.json();
   expect(articlesResponse.status()).toEqual(200);
-  expect(articlesResponseJSON.articles[0].title).toEqual("Title");
+  expect(articlesResponseJSON.articles[0].title).toEqual("Title New");
 
   const deleteArticleResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slagID}`, {
     headers: {
