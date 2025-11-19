@@ -113,8 +113,11 @@ expect(latencyMs).shouldBeLessThanOrEqual(500)
 
 ## CI Workflows
 - `smoke-tests.yml`: Runs `tests/smokeTest.spec.ts`, publishes Playwright report artifact
+- `codeql.yml`: CodeQL static analysis for security vulnerabilities (enables GitHub Code Scanning)
 - `gitleaks.yml`: Secret scanning, SARIF upload (code scanning on same-repo events)
 - `actionlint.yml`: Workflow syntax validation
+
+For detailed information on enabling and using GitHub Code Scanning, see [CODE_SCANNING.md](CODE_SCANNING.md).
 
 ## Security & Secrets
 Set env locally:
