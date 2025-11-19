@@ -12,7 +12,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.56.1",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "genson-js": "^0.0.8",
