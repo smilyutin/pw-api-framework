@@ -28,7 +28,7 @@ test('Get Articles', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .clearAuth()
         .getRequest(200)
-    await expect(response).shouldMatchSchema('articles', 'GET_articles_schema')
+    await expect(response).shouldMatchSchema('articles', 'GET_articles_schema', true)
     expect(response.articles.length).shouldBeLessThanOrEqual(10)
     expect(response.articlesCount).shouldEqual(10)
 

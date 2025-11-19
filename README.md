@@ -1,85 +1,146 @@
 # pw-api-framework
 
-Lightweight Playwright API testing framework with fluent request builder, custom expectations, secure logging, and CI pipelines.
+Lightweight Playwright API testing framework for fast, maintainable HTTP contract and functional testing with schema validation, secure logging, and CI workflows.
 
-## Capabilities
-- **Fluent API client**: `RequestHandler` supports `.url() .path() .params() .headers() .body()` with `getRequest|postRequest|putRequest|deleteRequest`.
-- **Secure logger**: `APILogger` redacts secrets (Authorization, tokens, passwords) from headers/bodies and prints recent logs on failures.
-- **Custom matchers**: `expect` extensions like `shouldEqual`, `shouldBeLessThanOrEqual` for readable assertions.
-- **Fixtures**: Shared `api` fixture configured in `utils/fixtures`.
-- **Single worker**: Configured for deterministic API tests.
-- **CI ready**: Workflows for smoke tests, secret scanning (Gitleaks), and workflow linting (actionlint).
-- **MCP configs**: JSON/YAML examples with local schema mapping for editor validation.
+## Features
+- **Fluent Request Builder**: Chain `.url().path().params().headers().body()` then call `getRequest|postRequest|putRequest|deleteRequest`.
+- **Schema Validation**: JSON responses validated with Ajv; optional auto-generation & regeneration of JSON schemas.
+- **Auto Timestamp Formats**: On schema (re)generation, `createdAt` and `updatedAt` fields are injected with `format: "date-time"` (if string / no existing format).
+- **Custom Expectations**: Extended `expect` matchers (e.g. `shouldEqual`, `shouldBeLessThanOrEqual`) for readable assertions.
+- **Secure Logging**: Logger redacts sensitive headers (Authorization, tokens, passwords).
+- **Playwright Fixtures**: Shared `api` context fixture for consistent request handling.
+- **Deterministic Runs**: Single worker configuration to avoid race conditions with test data.
+- **CI Ready**: Smoke test workflow, secret scanning (Gitleaks), workflow linting (actionlint).
+- **Schema Mapping**: Local MCP schema examples in JSON & YAML with validation via `$schema`.
+- **Extensible Utilities**: Helpers for token creation, request handling, logging, and schema generation.
 
-## Prerequisites
-- Node.js 20+
-- macOS/Linux shell (`zsh` supported)
-- Optional: `gitleaks` for local secret scanning, `actionlint` for local workflow linting
+## Tech Stack
+- **Runtime**: Node.js 20+
+- **Test Runner**: Playwright
+- **Schema**: Ajv + ajv-formats + genson-js (generation)
+- **Lang**: TypeScript
+- **Security**: Gitleaks, masked logs
 
-## Install
+## Installation
 ```bash
 npm ci
 ```
 
-## Run Tests (Local)
-- **All tests**:
+(Optional) Install Playwright browsers:
+```bash
+npx playwright install --with-deps
+```
+
+## Running Tests
+- All tests:
 ```bash
 npx playwright test
 ```
-- **Smoke only**:
+- Single file:
 ```bash
-npx playwright test tests/smokeTest.spec.ts --reporter=line
+npx playwright test tests/smokeTest.spec.ts
 ```
-- **Filter by title**:
+- By title (grep):
 ```bash
 npx playwright test -g "Get Articles"
 ```
-- **Open last HTML report**:
+- With concise reporter:
+```bash
+npx playwright test --reporter=line
+```
+- View last HTML report:
 ```bash
 npx playwright show-report
 ```
 
-## Build/Verify
-- **Install Playwright browsers**:
-```bash
-npx playwright install --with-deps
-```
-- **Secret scan (local)**:
-```bash
-gitleaks detect --source . --redact -v -c .gitleaks.toml
-```
-- **Workflow lint (local)**:
-```bash
-actionlint
+## Schema Validation Workflow
+Schemas live under `./responce-schemas/<group>/<NAME>.json`.
+
+Core function `validateSchema`:
+```ts
+await validateSchema(
+  'articles',          // directory
+  'GET_articles_schema', // file base name WITHOUT .json
+  responseBody,        // actual API JSON
+  false                 // set true to (re)generate schema
+)
 ```
 
-## CI/CD
-- `.github/workflows/smoke-tests.yml`:
-	- Triggers: push to `main`, PRs `dev` → `main`.
-	- Runs Playwright smoke: `tests/smokeTest.spec.ts` and uploads report artifact.
-- `.github/workflows/gitleaks.yml`:
-	- Runs Gitleaks via Docker, emits `gitleaks.sarif`.
-	- Uploads to Code Scanning on same-repo events; uploads artifact on fork PRs.
-- `.github/workflows/actionlint.yml`:
-	- Validates workflow YAML on PRs/pushes to `main`.
+### Regenerating / Creating Schemas
+Set `createSchemaFlag` to `true` when calling `validateSchema` in a test after verifying the response structure is stable:
+```ts
+await validateSchema('articles', 'GET_articles_schema', responseBody, true)
+```
+This will:
+1. Generate a new schema via `genson-js`
+2. Traverse schema and inject `format: "date-time"` for `createdAt` / `updatedAt` properties where `type` is (or becomes) `string`
+3. Save schema to disk (creating directories recursively)
+
+### Auto Timestamp Format Rules
+- Applies only when generating (flag `true`)
+- Does not overwrite an existing `format`
+- Handles nested objects, arrays, and composed schemas (`anyOf|oneOf|allOf`)
+
+## Project Structure (Key Files)
+```
+helpers/createToken.ts            // Token generation helper
+utils/request-handler.ts          // Fluent HTTP builder
+utils/logger.ts                   // Secure logging
+utils/fixtures.ts                 // Playwright fixtures
+utils/schema-validator.ts         // Ajv validation + schema generation + date-time injection
+utils/custom-expect.ts            // Custom matchers
+responce-schemas/                 // Generated JSON schemas
+tests/*.spec.ts                   // Playwright API specs
+playwright.config.ts              // Runner configuration
+```
+
+## Adding New API Tests
+1. Create spec in `tests/` (e.g. `userProfile.spec.ts`)
+2. Use `api` fixture to build requests
+3. Capture JSON response
+4. Call `validateSchema('users','GET_user_schema', body, true)` first time to generate
+5. Flip flag back to `false` for subsequent contract validation
+
+## Custom Expectations Example
+```ts
+expect(status).shouldEqual(200)
+expect(latencyMs).shouldBeLessThanOrEqual(500)
+```
+
+## Logging Behavior
+- Redacts `authorization`, `token`, `password` keys (case-insensitive)
+- Prints recent request log batch on failure for easier triage
+
+## CI Workflows
+- `smoke-tests.yml`: Runs `tests/smokeTest.spec.ts`, publishes Playwright report artifact
+- `gitleaks.yml`: Secret scanning, SARIF upload (code scanning on same-repo events)
+- `actionlint.yml`: Workflow syntax validation
 
 ## Security & Secrets
-- No tokens committed. Configs reference env vars (e.g., `GITHUB_TOKEN`).
-- Logger masks secrets automatically in console output and error logs.
-- Pre-commit hook runs Gitleaks and blocks commits that leak secrets.
-
-Set a token for local use (if required by tools):
+Set env locally:
 ```bash
-export GITHUB_TOKEN=ghp_your_token
+export GITHUB_TOKEN=ghp_your_token_here
+```
+Run secret scan:
+```bash
+gitleaks detect --source . --redact -v
 ```
 
-## MCP Configs
-- JSON: `mcp-servers.json` with `$schema: ./schemas/mcp-servers.v1.json`.
-- YAML: `mcp-servers.yaml` equivalent.
-- VS Code mapping: `.vscode/settings.json` maps the local schema for validation.
-
 ## Troubleshooting
-- Schema 404s: ensured by local schema `schemas/mcp-servers.v1.json`.
-- Code scanning upload fails on fork PRs: SARIF is uploaded as an artifact instead.
-- Husky notice: current pre-commit works; remove legacy header if upgrading to Husky v10.
+- Schema validation fails: Inspect thrown error (Ajv error array + actual body). Update schema via regen flag if response format legitimately changed.
+- Missing date-time `format`: Ensure regeneration flag was `true` at least once after adding field.
+- Inconsistent test data: Run with single worker (default) to avoid shared-state collisions.
+- Gitleaks false positives: Add inline allowlist in `.gitleaks.toml` (keep minimal).
 
+## Conventions
+- Commit messages follow Conventional Commits (`feat:`, `fix:`, `refactor:` etc.)
+- Avoid manual edits to generated schema fields for timestamps—regenerate instead.
+- Use TypeScript explicit types for new utilities.
+
+## Next Ideas
+- Add `deletedAt` to auto format list
+- Introduce response snapshot diffing
+- Add resilience tests (retry/backoff simulation)
+
+## License
+Internal / Not publicly licensed (adjust if open-sourcing).
