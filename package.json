@@ -14,6 +14,7 @@
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.0",
     "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "genson-js": "^0.0.8",
     "husky": "^9.0.11"
   }
