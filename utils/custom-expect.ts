@@ -3,6 +3,7 @@
 
 import { expect as baseExpect } from '@playwright/test'
 import { APILogger } from './logger'
+import { validateSchema } from './schema-validator'
 
 // Shared logger instance for attaching API logs to assertion failures
 let apiLogger: APILogger
@@ -15,10 +16,11 @@ export const setCustomExpectLogger = (logger: APILogger) => {
 // Extend Playwright's Matchers interface with custom assertion methods
 declare global {
     namespace PlaywrightTest {
-        interface Matchers<R, T>  {
+        interface Matchers<R, T> {
             shouldEqual(expected: T): R
             shouldBeLessThanOrEqual(expected: T): R
-        
+            shouldMatchSchema(dirName: string, fileName: string, createSchemaFlag?: boolean): Promise<R>
+
         }
     }
 }
@@ -27,6 +29,31 @@ declare global {
 export const expect = baseExpect.extend({
     // Custom equality matcher that appends recent API logs to failure messages
     // Provides better debugging context by showing request/response details when assertions fail
+    async shouldMatchSchema(received: any, dirName: string, fileName: string, createSchemaFlag: boolean = false) {
+        let pass: boolean
+        let message: string = ''
+
+        try {
+            // Delegate to Playwright's built-in toEqual
+            await validateSchema(dirName, fileName, received, createSchemaFlag)
+            pass = true
+            message = 'Schema validation passed.'
+            // Include logs when using .not.shouldEqual and the assertion passes (useful for negative cases)
+
+        } catch (e: any) {
+            // Assertion failed, capture logs for error message
+            pass = false
+            const logs = apiLogger.getRecentLogs()
+            message = `${e.message}\n\nRecent API logs:\n${logs}`
+
+        }
+
+        return {
+            message: () => message,
+            pass
+        };
+    },
+
     shouldEqual(received: any, expected: any) {
         let pass: boolean
         let logs: string = ''
@@ -36,7 +63,7 @@ export const expect = baseExpect.extend({
             baseExpect(received).toEqual(expected)
             pass = true
             // Include logs when using .not.shouldEqual and the assertion passes (useful for negative cases)
-            if(this.isNot) {
+            if (this.isNot) {
                 logs = apiLogger.getRecentLogs()
             }
         } catch (e: any) {
@@ -68,7 +95,7 @@ export const expect = baseExpect.extend({
             baseExpect(received).toBeLessThanOrEqual(expected)
             pass = true
             // Include logs for negative assertions that pass
-            if(this.isNot) {
+            if (this.isNot) {
                 logs = apiLogger.getRecentLogs()
             }
         } catch (e: any) {

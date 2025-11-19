@@ -84,7 +84,7 @@ export class APILogger {
         // Store in buffer for later retrieval (e.g., on test failure)
         this.recentLogs.push({ type: 'Request Details', data: safe });
         // Print to console for immediate visibility
-        console.log('API Request:', safe);
+        //console.log('API Request:', safe);
     }
 
     // Log an HTTP response with redacted headers and body
@@ -97,7 +97,7 @@ export class APILogger {
         // Add to recent logs buffer
         this.recentLogs.push({ type: 'Response Details', data: safe });
         // Print to console
-        console.log('API Response:', safe);
+        //console.log('API Response:', safe);
     }
 
     // Retrieve formatted recent logs for inclusion in error messages or reports
