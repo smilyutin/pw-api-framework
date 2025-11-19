@@ -5,6 +5,8 @@
 import { APIRequestContext } from "@playwright/test"
 import { expect } from '@playwright/test'
 import { APILogger } from "./logger"
+import { test } from "@playwright/test"
+
 
 export class RequestHandler {
 
@@ -72,27 +74,33 @@ export class RequestHandler {
 
     // Execute GET request, log it, validate status, and return parsed JSON response
     async getRequest(statusCode: number) {
+
+        let responseJSON: any
         const url = this.getURL()
-        // Log outgoing request with redacted sensitive headers
-        this.logger?.logRequest('GET', url, this.getHeaders())
-        const response = await this.request?.get(url, {
-            headers: this.getHeaders(),
+        await test.step(`Get request to: $(url)`, async () => {
+            // Log outgoing request with redacted sensitive headers
+            this.logger?.logRequest('GET', url, this.getHeaders())
+            const response = await this.request?.get(url, {
+                headers: this.getHeaders(),
+            })
+            this.cleanupFields()
+            const actualStatus = response?.status()!
+            responseJSON = await response?.json()
+            // Log response with redacted body (tokens, passwords masked)
+            this.logger.logResponse(actualStatus, {}, responseJSON)
+            // Throw error with logs if status doesn't match expected
+            this.statusCodeValidator(statusCode, actualStatus, this.getRequest)
         })
-        this.cleanupFields()
-        const actualStatus = response?.status()!
-        const responseJSON = await response?.json()
-        // Log response with redacted body (tokens, passwords masked)
-        this.logger.logResponse(actualStatus, {}, responseJSON)
-        // Throw error with logs if status doesn't match expected
-        this.statusCodeValidator(statusCode, actualStatus, this.getRequest)
 
         return responseJSON
     }
 
     // Execute POST request with body, log it, validate status, and return parsed JSON response
     async postRequest(statusCode: number) {
+        let responseJSON: any
         const url = this.getURL()
-        // Log request including body (sensitive fields redacted)
+        await test.step(`POST request to: $(url)`, async () => {
+// Log request including body (sensitive fields redacted)
         this.logger?.logRequest('POST', url, this.getHeaders(), this.apiBody)
         const response = await this.request?.post(url, {
             headers: this.getHeaders(),
@@ -100,19 +108,25 @@ export class RequestHandler {
         })
         this.cleanupFields()
         const actualStatus = response?.status()!
-        const responseJSON = await response?.json()
+        responseJSON = await response?.json()
         // Log response with masked secrets
         this.logger.logResponse(actualStatus, {}, responseJSON)
         // Validate status and throw enriched error on mismatch
         this.statusCodeValidator(statusCode, actualStatus, this.postRequest)
+
+        })
+        
 
         return responseJSON
     }
 
     // Execute PUT request with body, log it, validate status, and return parsed JSON response
     async putRequest(statusCode: number) {
+        let responseJSON: any
         const url = this.getURL()
-        // Log PUT request with redacted body
+        
+        await test.step(`Put request to: $(url)`, async () => {
+            // Log PUT request with redacted body
         this.logger?.logRequest('PUT', url, this.getHeaders(), this.apiBody)
         const response = await this.request?.put(url, {
             headers: this.getHeaders(),
@@ -120,11 +134,13 @@ export class RequestHandler {
         })
         this.cleanupFields()
         const actualStatus = response?.status()!
-        const responseJSON = await response?.json()
+        responseJSON = await response?.json()
         // Log response
         this.logger.logResponse(actualStatus, {}, responseJSON)
         // Validate expected status code
         this.statusCodeValidator(statusCode, actualStatus, this.putRequest)
+        })
+        
 
         return responseJSON
     }
@@ -132,7 +148,8 @@ export class RequestHandler {
     // Execute DELETE request, log it, and validate status (no response body expected)
     async deleteRequest(statusCode: number) {
         const url = this.getURL()
-        // Log DELETE request
+        await test.step(`Delete request to: $(url)`, async () => {
+            // Log DELETE request
         this.logger.logRequest('DELETE', url, this.getHeaders())
         const response = await this.request?.delete(url, {
             headers: this.getHeaders()
@@ -143,6 +160,7 @@ export class RequestHandler {
         this.logger.logResponse(actualStatus, {}, undefined)
         // Validate status and throw on mismatch
         this.statusCodeValidator(statusCode, actualStatus, this.deleteRequest)
+        })
     }
     // Build the complete URL by combining base URL, path, and query params
     private getURL() {
