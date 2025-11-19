@@ -9,16 +9,7 @@ const ajv = new Ajv({ allErrors: true })
 export async function validateSchema(dirName: string, fileName: string, responseBody: object,createSchemaFlag: boolean = false) {
     const schemaPath = path.join(SCHEMA_BASE_PATH, dirName, `${fileName}.json`)
 
-    if (createSchemaFlag) { 
-        try{
-            const generatedSchema = await createSchema(responseBody)
-            await fs.mkdir(path.dirname(schemaPath), { recursive: true })
-            await fs.writeFile(schemaPath, JSON.stringify(generatedSchema, null, 4), 'utf-8')
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error)
-            throw new Error(`Failed to create the schema file: ${ errorMessage }`)
-        }
-    }
+    if (createSchemaFlag) await generateNewSchema(responseBody, schemaPath)
 
     const schema = await loadSchema(schemaPath)
     const validate = ajv.compile(schema)
@@ -43,3 +34,13 @@ async function loadSchema(schemaPath: string) {
         throw new Error(`Failed to read the schema file: ${ errorMessage }`)
     }
 }
+
+async function generateNewSchema(responseBody: object, schemaPath: string) {
+    try{
+            const generatedSchema = await createSchema(responseBody)
+            await fs.mkdir(path.dirname(schemaPath), { recursive: true })
+            await fs.writeFile(schemaPath, JSON.stringify(generatedSchema, null, 4), 'utf-8')
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            throw new Error(`Failed to create the schema file: ${ errorMessage }`)
+        }}
