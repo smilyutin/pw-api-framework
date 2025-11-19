@@ -1,7 +1,7 @@
 # MCP servers configuration (YAML equivalent of mcp-servers.json)
 # Note: Keep your token in the environment. Do not paste it here.
 $schema: ./schemas/mcp-servers.v1.json
-version: 1
+version: 1.0.0
 servers:
   github:
     type: python

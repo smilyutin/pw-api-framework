@@ -1,50 +1,94 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "MCP Servers Config",
+  "title": "MCP Servers Configuration",
+  "description": "Configuration file defining MCP-compatible server processes, grouped profiles, and metadata.",
   "type": "object",
   "properties": {
-    "$schema": { "type": "string" },
-    "version": { "type": ["integer", "string"] },
-    "servers": {
-      "type": "object",
-      "additionalProperties": { "$ref": "#/definitions/server" }
-    },
-    "mcpServers": {
-      "type": "object",
-      "additionalProperties": { "$ref": "#/definitions/server" }
-    },
-    "profiles": {
-      "type": "object",
-      "additionalProperties": {
+      "$schema": {
+        "type": "string",
+        "description": "Optional reference to the schema used for validation (editor hint)."
+      },
+      "version": {
+        "type": "string",
+        "pattern": "^\\d+\\.\\d+\\.\\d+$",
+        "description": "Semantic version of this configuration (MAJOR.MINOR.PATCH)."
+      },
+      "servers": {
+        "type": "object",
+        "description": "Map of server keys to server definitions.",
+        "additionalProperties": { "$ref": "#/definitions/server" }
+      },
+      "profiles": {
+        "type": "object",
+        "description": "Named collections of server keys for activation convenience.",
+        "additionalProperties": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of server keys included in the profile."
+        }
+      },
+      "notes": {
         "type": "array",
+        "description": "Arbitrary human-readable notes about this configuration.",
         "items": { "type": "string" }
       }
     },
-    "notes": {
-      "type": "array",
-      "items": { "type": "string" }
-    }
-  },
-  "definitions": {
-    "server": {
-      "type": "object",
-      "properties": {
-        "type": { "type": "string" },
-        "command": { "type": "string" },
-        "args": { "type": "array", "items": { "type": "string" } },
-        "env": { "type": "object", "additionalProperties": { "type": "string" } },
-        "metadata": {
-          "type": "object",
-          "properties": {
-            "description": { "type": "string" },
-            "capabilities": { "type": "array", "items": { "type": "string" } }
+    "required": ["version", "servers"],
+    "definitions": {
+      "server": {
+        "type": "object",
+        "description": "Configuration for a single MCP server process.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["node", "python", "binary"],
+            "description": "Execution environment / launcher type."
           },
-          "additionalProperties": true
-        }
-      },
-      "required": ["command"],
-      "additionalProperties": true
-    }
-  },
-  "additionalProperties": true
+          "command": {
+            "type": "string",
+            "description": "Executable, interpreter, or script entry point to run."
+          },
+          "args": {
+            "type": "array",
+            "description": "Command-line arguments passed to the process.",
+            "items": { "type": "string" }
+          },
+          "env": {
+            "type": "object",
+            "description": "Environment variables (string values) set for the process.",
+            "additionalProperties": { "type": "string" }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Optional descriptive metadata and capability advertisement.",
+            "properties": {
+              "description": { "type": "string", "description": "Human-readable description of the server." },
+              "capabilities": {
+                "type": "array",
+                "description": "List of supported capability identifiers.",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "readRepo",
+                    "searchCode",
+                    "listIssues",
+                    "listPulls",
+                    "createIssue",
+                    "commentPull",
+                    "getFile",
+                    "filesystem",
+                    "streaming",
+                    "chat"
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": ["command", "type"],
+        "additionalProperties": false
+      }
+    },
+  "additionalProperties": false
 }
