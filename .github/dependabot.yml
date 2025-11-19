@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # GitHub Actions updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  # npm (example)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    # optionally add automerge for security updates
+    allow:
+      - dependency-type: "direct"
+    labels:
+      - "dependencies"
+      - "dependabot"
+
+  # Docker (example)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"

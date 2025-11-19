@@ -31,7 +31,7 @@ test('Get Articles', async ({ api }) => {
     await expect(response).shouldMatchSchema('articles', 'GET_articles_schema', true)
     expect(response.articles.length).shouldBeLessThanOrEqual(10)
     expect(response.articlesCount).shouldEqual(10)
-//commit test
+
     // const response2 = await api
     //     .path('/tags')
     //     .getRequest(200)
