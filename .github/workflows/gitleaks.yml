@@ -26,7 +26,7 @@ jobs:
             -v "$PWD:/repo" \
             zricethezav/gitleaks:latest detect \
             --source=/repo \
-            --config-path=/repo/.gitleaks.toml \
+            -c /repo/.gitleaks.toml \
             --redact \
             --report-format sarif \
             --report-path /repo/gitleaks.sarif || true
