@@ -28,7 +28,8 @@ test('Get Articles', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .clearAuth()
         .getRequest(200)
-    await expect(response).shouldMatchSchema('articles', 'GET_articles_schema', true)
+    //use schema validation after every single response
+    await expect(response).shouldMatchSchema('articles', 'GET_articles_schema')
     expect(response.articles.length).shouldBeLessThanOrEqual(10)
     expect(response.articlesCount).shouldEqual(10)
 
@@ -56,7 +57,7 @@ test('Create and Delete Article', async ({ api }) => {
         // .headers({ Authorization: authToken })
         .body({ "article": { "title": "Title", "description": "New About", "body": "My big fat article here", "tagList": ["My Tags"] } })
         .postRequest(201)
-        await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
+    await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
     expect(createArticleResponse.article.title).shouldEqual("Title");
     const slagID = createArticleResponse.article.slug
     const articlesResponse = await api
@@ -85,7 +86,7 @@ test('Create, Update and Delete Article', async ({ api }) => {
         // .headers({ Authorization: authToken })
         .body({ "article": { "title": "Title New", "description": "New About", "body": "My big fat article here", "tagList": ["My Tags"] } })
         .postRequest(201)
-        await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
+    await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
     expect(createArticleResponse.article.title).shouldEqual("Title New");
     const slagID = createArticleResponse.article.slug
 
@@ -94,7 +95,7 @@ test('Create, Update and Delete Article', async ({ api }) => {
         // .headers({ Authorization: authToken })
         .body({ "article": { "title": "Title New Updated", "description": "Updated About", "body": "My big updatedfat article here", "tagList": ["My updatedTags"] } })
         .putRequest(200)
-        await expect(updateArticleResponse).shouldMatchSchema('articles', 'PUT_articles_schema')
+    await expect(updateArticleResponse).shouldMatchSchema('articles', 'PUT_articles_schema')
     expect(updateArticleResponse.article.title).shouldEqual("Title New Updated")
     const newSlagID = updateArticleResponse.article.slug
 
