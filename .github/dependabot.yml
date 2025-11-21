@@ -6,21 +6,15 @@ updates:
     schedule:
       interval: "daily"
 
-  # npm (example)
+  # npm dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 5
-    # optionally add automerge for security updates
+      interval: "weekly"
+    open-pull-requests-limit: 10
     allow:
       - dependency-type: "direct"
+      - dependency-type: "indirect"
     labels:
       - "dependencies"
-      - "dependabot"
-
-  # Docker (example)
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "daily"
+      - "npm"

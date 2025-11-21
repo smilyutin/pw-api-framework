@@ -140,6 +140,13 @@ gitleaks detect --source . --redact -v
 - Avoid manual edits to generated schema fields for timestamps—regenerate instead.
 - Use TypeScript explicit types for new utilities.
 
+## Migration
+- Previous configs could use both `servers` and `mcpServers`. The schema now requires only `servers` and removes `mcpServers`.
+- If you still have `mcpServers` in a local file, rename the key to `servers` and merge entries.
+- Version field must follow semantic version pattern `MAJOR.MINOR.PATCH` (e.g. `1.0.0`). Update older numeric versions accordingly.
+- Capabilities are now validated against a fixed enum; remove or adjust any custom capability names not in the list.
+- Metadata no longer allows arbitrary extra keys; add a separate `notes` entry at the root if you need free-form comments.
+
 ## Next Ideas
 - Add `deletedAt` to auto format list
 - Introduce response snapshot diffing

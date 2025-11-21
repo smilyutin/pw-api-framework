@@ -1,6 +1,6 @@
 {
   "$schema": "./schemas/mcp-servers.v1.json",
-  "version": 1,
+  "version": "1.0.0",
   "servers": {
     "github": {
       "type": "python",
