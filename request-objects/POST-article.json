@@ -1,0 +1,10 @@
+{
+    "article": {
+        "title": "Title",
+        "description": "New About",
+        "body": "My big fat article here",
+        "tagList": [
+            "My Tags"
+        ]
+    }
+}

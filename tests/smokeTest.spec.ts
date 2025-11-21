@@ -1,5 +1,8 @@
 import { test } from '../utils/fixtures'
 import { expect } from '../utils/custom-expect'
+import { faker } from '@faker-js/faker'
+import articleRequestPayload from '../request-objects/POST-article.json'
+import { getNewRandomArticle } from '../utils/data-generator';
 // import { validateSchema } from '../utils/schema-validator'
 //import { createToken } from '../helpers/createToken'
 
@@ -52,20 +55,24 @@ test('Get Test Tags', async ({ api }) => {
     expect(response.tags.length).toBeLessThanOrEqual(10)
 })
 test('Create and Delete Article', async ({ api }) => {
+    //
+    // const articleRequest = JSON.parse(JSON.stringify(articleRequestPayload))
+    // articleRequest.article.title = "Object title"
+    const articleRequest = getNewRandomArticle()
     const createArticleResponse = await api
         .path('/articles')
         // .headers({ Authorization: authToken })
-        .body({ "article": { "title": "Title", "description": "New About", "body": "My big fat article here", "tagList": ["My Tags"] } })
+        .body(articleRequest)
         .postRequest(201)
     await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
-    expect(createArticleResponse.article.title).shouldEqual("Title");
+    expect(createArticleResponse.article.title).shouldEqual(articleRequest.article.title)
     const slagID = createArticleResponse.article.slug
     const articlesResponse = await api
         .path('/articles')
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
-    expect(articlesResponse.articles[0].title).shouldEqual("Title");
+    expect(articlesResponse.articles[0].title).shouldEqual(articleRequest.article.title);
 
     await api
         .path(`/articles/${slagID}`)
@@ -77,26 +84,32 @@ test('Create and Delete Article', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
-    expect(articlesResponseCheck.articles[0].title).not.shouldEqual("Title");
+    expect(articlesResponseCheck.articles[0].title).not.shouldEqual(articleRequest.article.title)
 })
 
 test('Create, Update and Delete Article', async ({ api }) => {
+    const articleTitle = faker.lorem.sentence(3)
+    const articleRequest = JSON.parse(JSON.stringify(articleRequestPayload))
+    articleRequest.article.title = articleTitle
+
     const createArticleResponse = await api
         .path('/articles')
         // .headers({ Authorization: authToken })
-        .body({ "article": { "title": "Title New", "description": "New About", "body": "My big fat article here", "tagList": ["My Tags"] } })
+        .body(articleRequest)
         .postRequest(201)
     await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
-    expect(createArticleResponse.article.title).shouldEqual("Title New");
+    expect(createArticleResponse.article.title).shouldEqual(articleTitle);
     const slagID = createArticleResponse.article.slug
 
+    const articleTitleNew = faker.lorem.sentence(3)
+    articleRequest.article.title = articleTitleNew
     const updateArticleResponse = await api
         .path(`/articles/${slagID}`)
         // .headers({ Authorization: authToken })
-        .body({ "article": { "title": "Title New Updated", "description": "Updated About", "body": "My big updatedfat article here", "tagList": ["My updatedTags"] } })
+        .body(articleRequest)
         .putRequest(200)
     await expect(updateArticleResponse).shouldMatchSchema('articles', 'PUT_articles_schema')
-    expect(updateArticleResponse.article.title).shouldEqual("Title New Updated")
+    expect(updateArticleResponse.article.title).shouldEqual(articleTitleNew)
     const newSlagID = updateArticleResponse.article.slug
 
     const articlesResponse = await api
@@ -104,7 +117,8 @@ test('Create, Update and Delete Article', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
-    expect(articlesResponse.articles[0].title).shouldEqual("Title New Updated");
+    expect(articlesResponse.articles[0].title).shouldEqual(articleTitleNew)
+
 
     await api
         .path(`/articles/${newSlagID}`)
@@ -116,5 +130,5 @@ test('Create, Update and Delete Article', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
-    expect(articlesResponseCheck.articles[0].title).not.shouldEqual("Title New updated");
+    expect(articlesResponseCheck.articles[0].title).not.shouldEqual(articleTitleNew);
 })
