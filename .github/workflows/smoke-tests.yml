@@ -35,7 +35,7 @@ jobs:
       - name: Run smoke test (smokeTest.spec.ts)
         env:
           CI: true
-          TEST_ENV: ${{ matrix.envName }}
+          TEST_ENV: dev
           DEV_USERNAME: ${{ secrets.DEV_USERNAME }}
           DEV_PASSWORD: ${{ secrets.DEV_PASSWORD }}
           
