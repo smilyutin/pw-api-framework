@@ -47,4 +47,3 @@ jobs:
           name: playwright-report-dev
           path: playwright-report
           if-no-files-found: ignore
-          
