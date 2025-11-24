@@ -187,18 +187,29 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         // Verify we're on the editor page
         await expect(page).toHaveURL(/.*editor\/.*/)
         
+        // Wait for form to be ready
+        await page.getByPlaceholder('Article Title').waitFor({ state: 'visible' })
+        
         // Clear existing fields and fill in updated data
-        await page.getByPlaceholder('Article Title').clear()
+        await page.getByPlaceholder('Article Title').fill('')
         await page.getByPlaceholder('Article Title').fill(updatedTitle)
         
-        await page.getByPlaceholder('What\'s this article about?').clear()
+        await page.getByPlaceholder('What\'s this article about?').fill('')
         await page.getByPlaceholder('What\'s this article about?').fill(updatedDescription)
         
-        await page.getByPlaceholder('Write your article (in markdown)').clear()
+        await page.getByPlaceholder('Write your article (in markdown)').fill('')
         await page.getByPlaceholder('Write your article (in markdown)').fill(updatedBody)
         
-        await page.getByPlaceholder('Enter tags').clear()
+        // Handle tags - remove existing tags if present
+        const tagRemoveButtons = page.locator('.tag-list .ion-close-round')
+        const tagCount = await tagRemoveButtons.count()
+        for (let i = 0; i < tagCount; i++) {
+            await tagRemoveButtons.first().click()
+            await page.waitForTimeout(100)
+        }
+        
         await page.getByPlaceholder('Enter tags').fill(updatedTags)
+        await page.keyboard.press('Enter')
         
         // Publish updated article
         await page.getByRole('button', { name: 'Publish Article' }).click()
