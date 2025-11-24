@@ -32,13 +32,21 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run smoke test (smokeTest.spec.ts)
+      - name: Run API smoke tests
         env:
           CI: true
           TEST_ENV: dev
           DEV_USERNAME: ${{ secrets.DEV_USERNAME }}
           DEV_PASSWORD: ${{ secrets.DEV_PASSWORD }}
-        run: npx playwright test tests/smokeTest.spec.ts --reporter=line
+        run: npx playwright test tests/api-tests/smokeTest.spec.ts --reporter=line
+
+      - name: Run UI smoke tests
+        env:
+          CI: true
+          TEST_ENV: dev
+          DEV_USERNAME: ${{ secrets.DEV_USERNAME }}
+          DEV_PASSWORD: ${{ secrets.DEV_PASSWORD }}
+        run: npx playwright test tests/ui-tests/smokeTest.spec.ts --reporter=line
 
       - name: Upload Playwright HTML report
         if: always()

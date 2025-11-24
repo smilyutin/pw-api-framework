@@ -1,8 +1,8 @@
-import { test } from '../utils/fixtures'
-import { expect } from '../utils/custom-expect'
+import { test } from '../../utils/fixtures'
+import { expect } from '../../utils/custom-expect'
 import { faker } from '@faker-js/faker'
-import articleRequestPayload from '../request-objects/POST-article.json'
-import { getNewRandomArticle } from '../utils/data-generator';
+import articleRequestPayload from '../../request-objects/POST-article.json'
+import { getNewRandomArticle } from '../../utils/data-generator';
 // import { validateSchema } from '../utils/schema-validator'
 //import { createToken } from '../helpers/createToken'
 

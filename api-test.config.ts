@@ -8,6 +8,7 @@ console.log(`Running tests on the ${env} environment`)
 
 const config = {
     apiUrl : 'https://conduit-api.bondaracademy.com/api',
+    uiUrl : 'https://conduit.bondaracademy.com',
     userEmail : '1pwtest101@test.com',
     userPassword : '1pwtest101@test.com'
 }

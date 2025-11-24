@@ -30,12 +30,20 @@ export default defineConfig({
   projects: [
     {
       name: 'api-testing',
-      testMatch: 'example*',
-      dependencies: ['smoke-tests'],
+      testDir: './tests/api-tests',
+      dependencies: ['api-smoke-tests'],
     },
     {
-      name: 'smoke-tests',
-      //testMatch: 'smoke*'
+      name: 'api-smoke-tests',
+      testDir: './tests/api-tests',
+      testMatch: 'smokeTest.spec.ts',
+    },
+    {
+      name: 'ui-testing',
+      testDir: './tests/ui-tests',
+      use:{
+        defaultBrowserType: 'chromium'
+      }
     }
 
   ],
