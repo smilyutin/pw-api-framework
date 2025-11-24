@@ -237,6 +237,7 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         
         // Verify error message is displayed
         await expect(page.locator('.error-messages')).toBeVisible()
+        await expect(page.locator('.error-messages')).toContainText('email or password is invalid')
         
         // Verify we're still on login page
         await expect(page).toHaveURL(/.*login/)
