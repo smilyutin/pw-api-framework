@@ -1,3 +1,8 @@
+name: Playwright Smoke Tests
+
+permissions:
+  contents: read
+
 on:
   push:
     branches: ["main"]
@@ -7,16 +12,16 @@ on:
 jobs:
   smoke:
     # Run on push to main, or PRs from dev -> main
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'dev') }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'dev' && github.event.pull_request.base.ref == 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -37,8 +42,9 @@ jobs:
 
       - name: Upload Playwright HTML report
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-dev
           path: playwright-report
           if-no-files-found: ignore
+          
