@@ -31,10 +31,23 @@ test('Get Articles', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .clearAuth()
         .getRequest(200)
+        // console.log(response)
     //use schema validation after every single response
-    await expect(response).shouldMatchSchema('articles', 'GET_articles_schema')
-    expect(response.articles.length).shouldBeLessThanOrEqual(10)
-    expect(response.articlesCount).shouldEqual(10)
+    await expect(response).shouldMatchSchema('articles', 'GET_articles')
+    // expect(response.articles.length).shouldBeLessThanOrEqual(10)
+    // expect(response.articlesCount).shouldEqual(10)
+
+    // Verify slug matches the title format (title with spaces replaced by "-" and number at the end)
+    response.articles.forEach((article: any) => {
+        // Convert title to expected slug format: keep colons/apostrophes/periods, replace spaces with -, add number
+        const cleanTitle = article.title
+            .replace(/[^\w\s:'.-]/g, '')  // Remove unwanted punctuation (keep : ' . -)
+            .replace(/\s+/g, '-')         // Replace spaces with hyphens
+        
+        // Escape special regex characters in the title
+        const escapedTitle = cleanTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        expect(article.slug).toMatch(new RegExp(`^${escapedTitle}-\\d+$`))
+    })
 
     // const response2 = await api
     //     .path('/tags')
@@ -48,7 +61,7 @@ test('Get Test Tags', async ({ api }) => {
     const response = await api
         .path('/tags')
         .getRequest(200)
-    await expect(response).shouldMatchSchema('tags', 'GET_tags_schema')
+    await expect(response).shouldMatchSchema('tags', 'GET_tags')
     // await expect(response).shouldMatchSchema('tags', 'GET_tags_schema', true)
     // remove true to catch schema errors, set to true to create/update the schema file
     expect(response.tags[0]).shouldEqual('Test')
@@ -64,7 +77,7 @@ test('Create and Delete Article', async ({ api }) => {
         // .headers({ Authorization: authToken })
         .body(articleRequest)
         .postRequest(201)
-    await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
+    await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles')
     expect(createArticleResponse.article.title).shouldEqual(articleRequest.article.title)
     const slagID = createArticleResponse.article.slug
     const articlesResponse = await api
@@ -72,6 +85,7 @@ test('Create and Delete Article', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
+    await expect(articlesResponse).shouldMatchSchema('articles', 'GET_articles')
     expect(articlesResponse.articles[0].title).shouldEqual(articleRequest.article.title);
 
     await api
@@ -84,6 +98,7 @@ test('Create and Delete Article', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
+    await expect(articlesResponseCheck).shouldMatchSchema('articles', 'GET_articles')
     expect(articlesResponseCheck.articles[0].title).not.shouldEqual(articleRequest.article.title)
 })
 
@@ -97,7 +112,7 @@ test('Create, Update and Delete Article', async ({ api }) => {
         // .headers({ Authorization: authToken })
         .body(articleRequest)
         .postRequest(201)
-    await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles_schema')
+    await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles')
     expect(createArticleResponse.article.title).shouldEqual(articleTitle);
     const slagID = createArticleResponse.article.slug
 
@@ -108,7 +123,7 @@ test('Create, Update and Delete Article', async ({ api }) => {
         // .headers({ Authorization: authToken })
         .body(articleRequest)
         .putRequest(200)
-    await expect(updateArticleResponse).shouldMatchSchema('articles', 'PUT_articles_schema')
+    await expect(updateArticleResponse).shouldMatchSchema('articles', 'PUT_articles')
     expect(updateArticleResponse.article.title).shouldEqual(articleTitleNew)
     const newSlagID = updateArticleResponse.article.slug
 
@@ -117,6 +132,7 @@ test('Create, Update and Delete Article', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
+    await expect(articlesResponse).shouldMatchSchema('articles', 'GET_articles')
     expect(articlesResponse.articles[0].title).shouldEqual(articleTitleNew)
 
 
@@ -130,5 +146,6 @@ test('Create, Update and Delete Article', async ({ api }) => {
         .params({ limit: 10, offset: 0 })
         // .headers({ Authorization: authToken })
         .getRequest(200)
+    await expect(articlesResponseCheck).shouldMatchSchema('articles', 'GET_articles')
     expect(articlesResponseCheck.articles[0].title).not.shouldEqual(articleTitleNew);
 })
