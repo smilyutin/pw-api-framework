@@ -9,7 +9,7 @@ node_modules/
 
 # HAR files (contain tokens and sensitive data)
 *.har
-filtered-har.json
+
 
 # Env files
 .env
