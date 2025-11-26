@@ -118,7 +118,7 @@ const createArticleResponse = await api
     .postRequest(201)
 ```
 
-## Test Quality Standards
+## Test Quality  Standards
 
 ### Required Elements
 1. **Schema Validation**: Every response must have `shouldMatchSchema()`
