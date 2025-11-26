@@ -6,6 +6,7 @@ Lightweight Playwright API testing framework for fast, maintainable HTTP contrac
 - **Fluent Request Builder**: Chain `.url().path().params().headers().body()` then call `getRequest|postRequest|putRequest|deleteRequest`.
 - **Schema Validation**: JSON responses validated with Ajv; optional auto-generation & regeneration of JSON schemas.
 - **Auto Timestamp Formats**: On schema (re)generation, `createdAt` and `updatedAt` fields are injected with `format: "date-time"` (if string / no existing format).
+- **HAR Processing**: Convert Playwright HAR recordings into automated API test flows with schema validation.
 - **Custom Expectations**: Extended `expect` matchers (e.g. `shouldEqual`, `shouldBeLessThanOrEqual`) for readable assertions.
 - **Secure Logging**: Logger redacts sensitive headers (Authorization, tokens, passwords).
 - **Playwright Fixtures**: Shared `api` context fixture for consistent request handling.
@@ -90,7 +91,11 @@ utils/fixtures.ts                 // Playwright fixtures
 utils/schema-validator.ts         // Ajv validation + schema generation + date-time injection
 utils/custom-expect.ts            // Custom matchers
 responce-schemas/                 // Generated JSON schemas
+request-objects/                  // JSON request templates for POST/PUT
 tests/*.spec.ts                   // Playwright API specs
+har-converter.js                  // HAR file filtering utility
+.github/prompts/                  // Test generation prompts
+.github/instructions/             // Framework patterns and rules
 playwright.config.ts              // Runner configuration
 ```
 
@@ -100,6 +105,25 @@ playwright.config.ts              // Runner configuration
 3. Capture JSON response
 4. Call `validateSchema('users','GET_user_schema', body, true)` first time to generate
 5. Flip flag back to `false` for subsequent contract validation
+
+## Generating Tests from HAR Files
+The framework includes a workflow to convert Playwright HAR recordings into automated test flows:
+
+1. **Record HAR file** during UI testing (Playwright automatically saves HAR files during trace recording)
+2. **Filter HAR file** to keep only API requests:
+```bash
+node har-converter.js
+```
+This creates `filtered-har.json` with only relevant API calls.
+
+3. **Generate test from HAR** using the prompt instructions:
+   - Follow `.github/prompts/generate-test-from-har.prompt.md`
+   - Creates complete test with schema validation
+   - Uses `structuredClone()` pattern for request objects
+   - Generates dynamic test data with Faker.js
+   - Extracts values for dependent requests (slugs, IDs, etc.)
+
+See `.github/instructions/har-processing.instructions.md` for detailed patterns and conventions.
 
 ## Custom Expectations Example
 ```ts
