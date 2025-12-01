@@ -3,6 +3,7 @@ import path from 'path'
 import Ajv from 'ajv'
 import { createSchema } from 'genson-js';
 import addFormats from "ajv-formats"
+import { PerformanceMetrics } from './performance-metrics'
 
 const SCHEMA_BASE_PATH = './responce-schemas'
 const ajv = new Ajv({ allErrors: true })
@@ -10,19 +11,41 @@ addFormats(ajv)
 
 export async function validateSchema(dirName: string, fileName: string, responseBody: object, createSchemaFlag: boolean = false) {
     const schemaPath = path.join(SCHEMA_BASE_PATH, dirName, `${fileName}.json`)
+    const startTime = Date.now()
+    let success = true
+    let errorType: string | undefined
 
-    if (createSchemaFlag) await generateNewSchema(responseBody, schemaPath)
+    try {
+        if (createSchemaFlag) await generateNewSchema(responseBody, schemaPath)
 
-    const schema = await loadSchema(schemaPath)
-    const validate = ajv.compile(schema)
+        const schema = await loadSchema(schemaPath)
+        const validate = ajv.compile(schema)
 
-    const valid = validate(responseBody)
-    if (!valid) {
-        throw new Error(
-            `Schema validation ${fileName}_schema.json failed:\n` +
-            `${JSON.stringify(validate.errors, null, 4)})\n\n` +
-            `Actual response body: \n` +
-            `${JSON.stringify(responseBody, null, 4)}`
+        const valid = validate(responseBody)
+        if (!valid) {
+            success = false
+            errorType = validate.errors?.[0]?.keyword || 'unknown'
+            throw new Error(
+                `Schema validation ${fileName}_schema.json failed:\n` +
+                `${JSON.stringify(validate.errors, null, 4)})\n\n` +
+                `Actual response body: \n` +
+                `${JSON.stringify(responseBody, null, 4)}`
+            )
+        }
+    } catch (error) {
+        success = false
+        if (!errorType) {
+            errorType = error instanceof Error ? error.message.split(':')[0] : 'unknown'
+        }
+        throw error
+    } finally {
+        const duration = Date.now() - startTime
+        await PerformanceMetrics.trackValidation(
+            dirName,
+            fileName,
+            success,
+            duration,
+            errorType
         )
     }
 }

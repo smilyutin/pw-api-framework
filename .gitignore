@@ -11,6 +11,9 @@ node_modules/
 *.har
 
 
+# Performance metrics
+/metrics/
+
 # Env files
 .env
 .env.*
