@@ -7,6 +7,7 @@ import { APILogger } from '../utils/logger'
 import { setCustomExpectLogger } from './custom-expect'
 import { config } from '../api-test.config'
 import { createToken } from '../helpers/createToken'
+import { PerformanceMetrics } from './performance-metrics'
 
 // Type definition for test fixtures available in all tests
 export type TestOptions = {
@@ -40,4 +41,9 @@ export const test = base.extend<TestOptions, WorkweFixture>({
     config: async ({}, use) => {
         await use(config)
      }
+})
+
+test.afterAll(async () => {
+    await PerformanceMetrics.saveMetrics()
+    await PerformanceMetrics.generateReport()
 })
