@@ -10,24 +10,129 @@ servers:
     env:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       GITHUB_DEFAULT_REPO: smilyutin/pw-api-framework
+      NODE_ENV: ${NODE_ENV:-development}
     metadata:
       description: GitHub MCP server providing repo content, issues, PR metadata, code search, and commit history.
       capabilities: [readRepo, searchCode, listIssues, listPulls, createIssue, commentPull]
+      tokenScopes: ["repo:read", "read:org"]
+    security:
+      capabilityFirewall:
+        allowedActions:
+          - readRepo
+          - searchCode
+          - listIssues
+          - listPulls
+          - getFile
+          - getCommits
+          - searchIssues
+        blockedActions:
+          - deleteRepo
+          - deleteFile
+          - pushCode
+          - mergePull
+          - deleteIssue
+          - grantAdmin
+          - removeCollaborator
+        requireApproval:
+          - createIssue
+          - commentPull
+          - createPull
+          - updateFile
+        allowedEnvironments: [development, test, staging]
+      auditLogging:
+        enabled: true
+        logDirectory: ./mcp-audit-logs
+        retentionDays: 90
+      redactPatterns: ["ghp_.*", ".*token.*", ".*secret.*", ".*password.*"]
+      tokenValidation:
+        enabled: true
+        requiredScopes: ["repo"]
+        maxScopes: ["repo", "read:org", "write:discussion"]
+        validateOnStartup: true
+      approvalHandler:
+        enabled: true
+        interface: cli
+        timeout: 300
+        allowedApprovers: ["${APPROVER_EMAIL}"]
+      artifactSecurity:
+        enabled: true
+        redactPatterns:
+          - "ghp_.*"
+          - "ghs_.*"
+          - "github_pat_.*"
+          - "Bearer\\s+[a-zA-Z0-9\\-._~+\\/]+=*"
+          - ".*token.*"
+          - ".*secret.*"
+          - ".*password.*"
+          - ".*api[_-]?key.*"
+        maxArtifactSize: 10485760
+        allowedFileTypes: [json, txt, log, md, har, png, jpg]
+        encryptSensitiveData: false
+        sanitizeMetadata: true
+        sanitizeScreenshots: true
+        sanitizeTraces: true
+        sanitizeHAR: true
   github-search:
     type: node
-    command: node
-    args: ["./servers/github-search/index.js"]
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-github"]
     env:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       SEARCH_DEFAULT_REPO: smilyutin/pw-api-framework
+      NODE_ENV: ${NODE_ENV:-development}
     metadata:
       description: Lightweight GitHub code search MCP server for high-speed scoped semantic queries.
       capabilities: [searchCode, getFile]
+      tokenScopes: ["repo:read", "read:org"]
+    security:
+      capabilityFirewall:
+        allowedActions:
+          - searchCode
+          - getFile
+          - searchRepos
+          - getFileContent
+        blockedActions:
+          - deleteFile
+          - updateFile
+          - createFile
+          - pushCode
+        requireApproval: []
+        allowedEnvironments: [development, test, staging, production]
+      auditLogging:
+        enabled: true
+        logDirectory: ./mcp-audit-logs
+        retentionDays: 90
+      redactPatterns: ["ghp_.*", ".*token.*", ".*secret.*", ".*password.*"]
+      tokenValidation:
+        enabled: true
+        requiredScopes: ["repo"]
+        maxScopes: ["repo", "read:org"]
+        validateOnStartup: true
+      artifactSecurity:
+        enabled: true
+        redactPatterns:
+          - "ghp_.*"
+          - "ghs_.*"
+          - "github_pat_.*"
+          - "Bearer\\s+[a-zA-Z0-9\\-._~+\\/]+=*"
+          - ".*token.*"
+          - ".*secret.*"
+          - ".*password.*"
+        maxArtifactSize: 5242880
+        allowedFileTypes: [json, txt, log]
+        encryptSensitiveData: false
+        sanitizeMetadata: true
 profiles:
   default: [github, github-search]
   minimal: [github-search]
   full: [github, github-search]
 notes:
   - Replace ${GITHUB_TOKEN} with an exported env var (repo:read scope).
+  - Set ${APPROVER_EMAIL} for approval notifications (optional).
   - Add additional servers under 'servers' with unique keys.
   - Profiles define which servers to activate together.
+  - "Security: Capability firewall enforces allowed/blocked actions and environments."
+  - "Security: Audit logging tracks all MCP invocations to ./mcp-audit-logs/."
+  - "Security: Set NODE_ENV environment variable (development|test|staging|production)."
+  - "Security: Token validation verifies GitHub PAT has only required scopes."
+  - "Security: Approval handler requires human confirmation for destructive actions."

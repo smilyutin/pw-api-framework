@@ -81,6 +81,127 @@
                     "chat"
                   ]
                 }
+              },
+              "tokenScopes": {
+                "type": "array",
+                "description": "Required token scopes for this server.",
+                "items": { "type": "string" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "security": {
+            "type": "object",
+            "description": "Security configuration for the MCP server.",
+            "properties": {
+              "capabilityFirewall": {
+                "type": "object",
+                "description": "Action-based access control rules.",
+                "properties": {
+                  "allowedActions": {
+                    "type": "array",
+                    "description": "List of permitted actions.",
+                    "items": { "type": "string" }
+                  },
+                  "blockedActions": {
+                    "type": "array",
+                    "description": "List of explicitly blocked actions.",
+                    "items": { "type": "string" }
+                  },
+                  "requireApproval": {
+                    "type": "array",
+                    "description": "Actions requiring human approval.",
+                    "items": { "type": "string" }
+                  },
+                  "allowedEnvironments": {
+                    "type": "array",
+                    "description": "List of allowed execution environments.",
+                    "items": { "type": "string" }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "auditLogging": {
+                "type": "object",
+                "description": "Audit logging configuration.",
+                "properties": {
+                  "enabled": { "type": "boolean", "description": "Enable audit logging." },
+                  "logDirectory": { "type": "string", "description": "Directory for audit logs." },
+                  "retentionDays": { "type": "number", "description": "Log retention period in days." }
+                },
+                "additionalProperties": false
+              },
+              "redactPatterns": {
+                "type": "array",
+                "description": "Regex patterns for redacting sensitive data.",
+                "items": { "type": "string" }
+              },
+              "tokenValidation": {
+                "type": "object",
+                "description": "Token scope validation configuration.",
+                "properties": {
+                  "enabled": { "type": "boolean", "description": "Enable token validation." },
+                  "requiredScopes": {
+                    "type": "array",
+                    "description": "Required token scopes.",
+                    "items": { "type": "string" }
+                  },
+                  "maxScopes": {
+                    "type": "array",
+                    "description": "Maximum allowed token scopes.",
+                    "items": { "type": "string" }
+                  },
+                  "validateOnStartup": { "type": "boolean", "description": "Validate token on server startup." }
+                },
+                "additionalProperties": false
+              },
+              "approvalHandler": {
+                "type": "object",
+                "description": "Human-in-loop approval configuration.",
+                "properties": {
+                  "enabled": { "type": "boolean", "description": "Enable approval workflow." },
+                  "interface": {
+                    "type": "string",
+                    "enum": ["cli", "web", "api"],
+                    "description": "Approval interface type."
+                  },
+                  "timeout": { "type": "number", "description": "Approval timeout in seconds." },
+                  "allowedApprovers": {
+                    "type": "array",
+                    "description": "List of allowed approver emails.",
+                    "items": { "type": "string" }
+                  },
+                  "autoApproveEnvironments": {
+                    "type": "array",
+                    "description": "Environments that auto-approve actions.",
+                    "items": { "type": "string" }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "artifactSecurity": {
+                "type": "object",
+                "description": "Artifact security and redaction configuration.",
+                "properties": {
+                  "enabled": { "type": "boolean", "description": "Enable artifact security." },
+                  "redactPatterns": {
+                    "type": "array",
+                    "description": "Regex patterns for redacting sensitive data in artifacts.",
+                    "items": { "type": "string" }
+                  },
+                  "maxArtifactSize": { "type": "number", "description": "Maximum artifact size in bytes." },
+                  "allowedFileTypes": {
+                    "type": "array",
+                    "description": "Allowed file extensions for artifacts.",
+                    "items": { "type": "string" }
+                  },
+                  "encryptSensitiveData": { "type": "boolean", "description": "Encrypt sensitive data in artifacts." },
+                  "sanitizeMetadata": { "type": "boolean", "description": "Sanitize artifact metadata." },
+                  "sanitizeScreenshots": { "type": "boolean", "description": "Sanitize screenshot data." },
+                  "sanitizeTraces": { "type": "boolean", "description": "Sanitize trace data." },
+                  "sanitizeHAR": { "type": "boolean", "description": "Sanitize HAR files." }
+                },
+                "additionalProperties": false
               }
             },
             "additionalProperties": false
