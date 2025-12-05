@@ -10,6 +10,8 @@ node_modules/
 # HAR files (contain tokens and sensitive data)
 *.har
 
+# MCP audit logs (contain sensitive invocation data)
+/mcp-audit-logs/
 
 # Performance metrics
 /metrics/

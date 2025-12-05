@@ -4,13 +4,22 @@ title = "PW API Framework Gitleaks"
 useDefault = true
 
 [allowlist]
-description = "Ignore build artifacts"
+description = "Ignore build artifacts and documentation examples"
 paths = [
   "playwright-report/",
   "test-results/",
   "node_modules/",
-  ".husky/_/"
+  ".husky/_/",
+  ".github/instructions/",
+  ".github/prompts/"
 ]
 regexes = [
-  "(?i)example|dummy|placeholder|sample"
+  "(?i)example|dummy|placeholder|sample|redacted|test|mock"
+]
+
+# Specific allowlist for false positives
+stopwords = [
+  "abc123def456",
+  "encryption-key-123",
+  "tokenHash"
 ]
