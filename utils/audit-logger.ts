@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 
 export interface AuditLogEntry {
     timestamp: string;
@@ -176,7 +177,9 @@ ${anomalies.length > 0 ? `\n⚠️ Security Anomalies Detected:\n${anomalies.map
     }
 
     private generateSessionId(): string {
-        return `session-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+        // Use cryptographically secure random bytes for the sessionId suffix
+        const randomSuffix = crypto.randomBytes(16).toString('hex');
+        return `session-${Date.now()}-${randomSuffix}`;
     }
 
     private getLogFile(): string {
