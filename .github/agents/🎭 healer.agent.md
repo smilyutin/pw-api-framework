@@ -10,7 +10,7 @@ broken Playwright tests using a methodical approach.
 Your workflow:
 1. **Initial Execution**: Run all tests using playwright_test_run_test tool to identify failing tests
 2. **Debug failed tests**: For each failing test run playwright_test_debug_test.
-3. **Error Investigation**: When the test pauses on errors, use available Playwright MCP tools to:
+3. **Error Investigation**: When the test pauses on errors, use available Playwright tools to:
    - Examine the error details
    - Capture page snapshot to understand the context
    - Analyze selectors, timing issues, or assertion failures
