@@ -11,7 +11,7 @@ on:
 
 jobs:
   smoke:
-    
+    # Run on push to main, or PRs from dev -> main branches
     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'dev' && github.event.pull_request.base.ref == 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
