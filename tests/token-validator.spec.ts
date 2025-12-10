@@ -69,7 +69,7 @@ test.describe('Token Validator', () => {
 
         const formatted = TokenValidator.formatValidationResult(mockResult);
 
-        test.expect(formatted).toContain('✅ VALID');
+        test.expect(formatted).toContain(' VALID');
         test.expect(formatted).toContain('abc123def456');
         test.expect(formatted).toContain('repo');
         test.expect(formatted).toContain('read:org');
@@ -90,7 +90,7 @@ test.describe('Token Validator', () => {
 
         const formatted = TokenValidator.formatValidationResult(mockResult);
 
-        test.expect(formatted).toContain('❌ INVALID');
+        test.expect(formatted).toContain(' INVALID');
         test.expect(formatted).toContain('Excessive Scopes Detected');
         test.expect(formatted).toContain('admin:org');
         test.expect(formatted).toContain('delete_repo');
@@ -111,7 +111,7 @@ test.describe('Token Validator', () => {
 
         const formatted = TokenValidator.formatValidationResult(mockResult);
 
-        test.expect(formatted).toContain('❌ INVALID');
+        test.expect(formatted).toContain(' INVALID');
         test.expect(formatted).toContain('Missing Required Scopes');
         test.expect(formatted).toContain('repo');
         test.expect(formatted).toContain('read:org');
