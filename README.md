@@ -84,19 +84,61 @@ This will:
 
 ## Project Structure (Key Files)
 ```
-helpers/createToken.ts            // Token generation helper
-utils/request-handler.ts          // Fluent HTTP builder
-utils/logger.ts                   // Secure logging
-utils/fixtures.ts                 // Playwright fixtures
-utils/schema-validator.ts         // Ajv validation + schema generation + date-time injection
-utils/custom-expect.ts            // Custom matchers
-responce-schemas/                 // Generated JSON schemas
-request-objects/                  // JSON request templates for POST/PUT
-tests/*.spec.ts                   // Playwright API specs
-har-converter.js                  // HAR file filtering utility
-.github/prompts/                  // Test generation prompts
-.github/instructions/             // Framework patterns and rules
-playwright.config.ts              // Runner configuration
+pw-api-framework/
+├── .github/
+│   ├── agents/                     # GitHub Copilot agents
+│   │   ├── 🎭 generator.agent.md   # Test generation agent
+│   │   ├── 🎭 healer.agent.md      # Test debugging/fixing agent
+│   │   └── 🎭 planner.agent.md     # Test planning agent
+│   ├── instructions/               # Framework patterns and rules
+│   ├── prompts/                    # Test generation prompts
+│   └── workflows/                  # GitHub Actions CI/CD
+├── helpers/
+│   ├── createToken.ts              # Token generation helper
+│   └── ui-helpers.ts               # UI test utilities
+├── mcp-audit-logs/                 # MCP tool invocation audit logs
+├── metrics/                        # Performance metrics storage
+├── request-objects/                # JSON request templates for POST/PUT
+├── responce-schemas/               # Generated JSON schemas
+│   ├── articles/                   # Article-related schemas
+│   ├── profiles/                   # Profile-related schemas
+│   └── tags/                       # Tag-related schemas
+├── schemas/                        # Configuration schemas (MCP, etc.)
+├── tests/
+│   ├── api-tests/                  # API test specifications
+│   │   ├── example.spec.ts
+│   │   ├── harFlow.spec.ts
+│   │   ├── negativeTests.spec.ts
+│   │   ├── seed.spec.ts
+│   │   ├── smokeTest.spec.ts
+│   │   └── tokenReplayFuzzTest.spec.ts
+│   ├── ui-tests/                   # UI/E2E test specifications
+│   │   └── smokeTest.spec.ts
+│   ├── approval-handler.spec.ts    # MCP security tests
+│   ├── artifact-security.spec.ts
+│   ├── audit-logger.spec.ts
+│   └── token-validator.spec.ts
+├── utils/
+│   ├── approval-handler.ts         # MCP action approval logic
+│   ├── artifact-security.ts        # Artifact security validation
+│   ├── audit-logger.ts             # MCP audit logging
+│   ├── custom-expect.ts            # Custom matchers
+│   ├── data-generator.ts           # Test data generation utilities
+│   ├── fixtures.ts                 # Playwright fixtures
+│   ├── logger.ts                   # Secure logging
+│   ├── performance-metrics.ts      # Performance measurement utilities
+│   ├── request-handler.ts          # Fluent HTTP builder
+│   ├── schema-validator.ts         # Ajv validation + schema generation
+│   └── token-validator.ts          # Token validation utilities
+├── api-test.config.ts              # Environment configuration
+├── har-converter.js                # HAR file filtering utility
+├── mcp-servers.json                # MCP server configuration
+├── mcp-servers.yaml                # MCP server configuration (YAML)
+├── playwright.config.ts            # Runner configuration
+├── CODE_SCANNING.md                # Security scanning documentation
+├── MCP_SECURITY_INTEGRATION.md     # MCP security integration guide
+├── PERFORMANCE_METRICS.md          # Performance metrics documentation
+└── architecture.md                 # Architecture documentation
 ```
 
 ## Adding New API Tests
