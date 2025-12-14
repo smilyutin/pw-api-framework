@@ -8,18 +8,60 @@ This is a Playwright-based API testing framework designed for testing REST APIs 
 
 ```
 pw-api-framework/
+├── .github/
+│   ├── agents/                 # GitHub Copilot agents
+│   │   ├── 🎭 generator.agent.md   # Test generation agent
+│   │   ├── 🎭 healer.agent.md      # Test debugging/fixing agent
+│   │   └── 🎭 planner.agent.md     # Test planning agent
+│   ├── instructions/           # Copilot instruction files
+│   ├── prompts/                # Copilot prompt templates
+│   └── workflows/              # GitHub Actions CI/CD
+├── helpers/
+│   ├── createToken.ts          # Authentication token creation
+│   └── ui-helpers.ts           # UI test utilities
+├── mcp-audit-logs/             # MCP tool invocation audit logs
+├── metrics/                    # Performance metrics storage
+├── request-objects/            # Request payload templates (e.g., POST-article.json)
+├── responce-schemas/           # JSON schemas for API response validation
+│   ├── articles/               # Article-related schemas
+│   ├── profiles/               # Profile-related schemas
+│   └── tags/                   # Tag-related schemas
+├── schemas/                    # Configuration schemas (MCP, etc.)
 ├── tests/
-│   └── api-tests/          # API test specifications (e.g., smokeTest.spec.ts)
+│   ├── api-tests/              # API test specifications
+│   │   ├── example.spec.ts
+│   │   ├── harFlow.spec.ts
+│   │   ├── negativeTests.spec.ts
+│   │   ├── seed.spec.ts
+│   │   ├── smokeTest.spec.ts
+│   │   └── tokenReplayFuzzTest.spec.ts
+│   ├── ui-tests/               # UI/E2E test specifications
+│   │   └── smokeTest.spec.ts
+│   ├── approval-handler.spec.ts    # MCP security tests
+│   ├── artifact-security.spec.ts
+│   ├── audit-logger.spec.ts
+│   └── token-validator.spec.ts
 ├── utils/
-│   ├── fixtures.ts         # Custom Playwright fixtures
-│   ├── custom-expect.ts    # Custom assertion matchers
-│   ├── data-generator.ts   # Test data generation utilities
-│   └── schema-validator.ts # JSON schema validation
-├── request-objects/        # Request payload templates (e.g., POST-article.json)
-├── schemas/                # JSON schemas for validation
-│   ├── articles/           # Article-related schemas
-│   └── tags/               # Tag-related schemas
-└── architecture.md         # This file
+│   ├── approval-handler.ts     # MCP action approval logic
+│   ├── artifact-security.ts    # Artifact security validation
+│   ├── audit-logger.ts         # MCP audit logging
+│   ├── custom-expect.ts        # Custom assertion matchers
+│   ├── data-generator.ts       # Test data generation utilities
+│   ├── fixtures.ts             # Custom Playwright fixtures
+│   ├── logger.ts               # API request/response logging
+│   ├── performance-metrics.ts  # Performance measurement utilities
+│   ├── request-handler.ts      # Fluent API request builder
+│   ├── schema-validator.ts     # JSON schema validation
+│   └── token-validator.ts      # Token validation utilities
+├── api-test.config.ts          # Environment configuration
+├── har-converter.js            # HAR to test converter
+├── mcp-servers.json            # MCP server configuration
+├── mcp-servers.yaml            # MCP server configuration (YAML)
+├── playwright.config.ts        # Playwright configuration
+├── CODE_SCANNING.md            # Security scanning documentation
+├── MCP_SECURITY_INTEGRATION.md # MCP security integration guide
+├── PERFORMANCE_METRICS.md      # Performance metrics documentation
+└── architecture.md             # This file
 ```
 
 ## Core Components
