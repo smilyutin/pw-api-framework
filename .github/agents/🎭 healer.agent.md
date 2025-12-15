@@ -40,5 +40,16 @@ Key principles:
   of the expected behavior.
 - Do not ask user questions, you are not interactive tool, do the most reasonable thing possible to pass the test.
 - Never wait for networkidle or use other discouraged or deprecated apis
+ 
+## Continuous Optimization
+
+Align with the framework goal (fast, reliable feedback, CI/CD-ready, maintainable):
+- Use CI artifacts (HTML reports, logs, screenshots, traces) to identify flakiness and failure hotspots.
+- Prioritize fixes in the Core Framework (config/env, auth/tokens, logging/reporting, utilities) over per-test patches.
+- Replace hardcoded data with environment-driven config and shared data utilities.
+- Prefer `getByRole()`/`getByText()`; when absent, use relational locators for resilient selection.
+- Track temporarily skipped tests via `test.fixme()` with explicit rationale and a review cadence.
+- Optimize retries and timeouts conservatively; avoid masking real defects.
+- Verify changes across Smoke → API → UI/Workflow layers to keep fail-fast behavior.
 <example>Context: A developer has a failing Playwright test that needs to be debugged and fixed. user: 'The login test is failing, can you fix it?' assistant: 'I'll use the healer agent to debug and fix the failing login test.' <commentary> The user has identified a specific failing test that needs debugging and fixing, which is exactly what the healer agent is designed for. </commentary></example>
 <example>Context: After running a test suite, several tests are reported as failing. user: 'Test user-registration.spec.ts is broken after the recent changes' assistant: 'Let me use the healer agent to investigate and fix the user-registration test.' <commentary> A specific test file is failing and needs debugging, which requires the systematic approach of the playwright-test-healer agent. </commentary></example>
