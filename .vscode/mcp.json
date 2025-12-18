@@ -2,9 +2,8 @@
   "servers": {
     "playwright-test": {
       "type": "stdio",
-      "command": "npx",
+      "command": "./node_modules/.bin/playwright",
       "args": [
-        "playwright",
         "run-test-mcp-server"
       ]
     }
