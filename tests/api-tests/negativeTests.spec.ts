@@ -3,10 +3,10 @@ import { expect } from '../../utils/custom-expect'
 
 
 [
-    { username: "dd", usernameErrorMessage: "is too short (minimum is 3 characters)" },
-    { username: "ddd", usernameErrorMessage: "" },
-    { username: "dddddddddddddddddddd", usernameErrorMessage: "" },
-    { username: "ddddddddddddddddddddd", usernameErrorMessage: "is too long (maximum is 20 characters)" }
+    { username: "dd", usernameErrorMessage: 'is too short (minimum is 3 characters)' },
+    { username: "ddd", usernameErrorMessage: '' },
+    { username: "dddddddddddddddddddd", usernameErrorMessage: '' },
+    { username: "ddddddddddddddddddddd", usernameErrorMessage: 'is too long (maximum is 20 characters)' }
 ].forEach(({ username, usernameErrorMessage }) => {
     test(`Create User with invalid username: ${username}`, async ({ api }) => {
         const newUserResponse = await api
@@ -25,6 +25,7 @@ import { expect } from '../../utils/custom-expect'
         } else {
 
             expect(newUserResponse.errors.username[0]).shouldEqual(usernameErrorMessage)
+    
         }
         //await expect(newUserResponse).shouldMatchSchema('users', 'POST_users_error_schema')
         // console.log(newUserResponse)

@@ -23,11 +23,11 @@ if(env === 'dev'){
 }
 if(env === 'prod'){
     config.apiUrl = 'https://conduit-api.bondaracademy.com/api';
-    if(!process.env.PROD_USERNAME || !process.env.PROD_PASSWORD) {
-        throw Error('PROD_USERNAME and PROD_PASSWORD must be set in environment variables');
-    }
-    config.userEmail = process.env.PROD_USERNAME 
-    config.userPassword = process.env.PROD_PASSWORD
+    // if(!process.env.PROD_USERNAME || !process.env.PROD_PASSWORD) {
+    //     throw Error('PROD_USERNAME and PROD_PASSWORD must be set in environment variables');
+    // }
+    config.userEmail = process.env.PROD_USERNAME as string
+    config.userPassword = process.env.PROD_PASSWORD as string
 }
 
 //run in cmd TEST_ENV='qa' npx playwright test smokeTest.spec.ts
