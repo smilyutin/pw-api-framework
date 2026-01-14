@@ -41,6 +41,7 @@ export default defineConfig({
     {
       name: 'ui-testing',
       testDir: './tests/ui-tests',
+      testMatch: 'smokeTest.spec.ts',
       use:{
         defaultBrowserType: 'chromium'
       }

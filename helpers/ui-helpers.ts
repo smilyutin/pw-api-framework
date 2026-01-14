@@ -6,6 +6,7 @@ export interface ArticleData {
     description: string
     body: string
     tags: string
+    slug?: string
 }
 
 export interface LoginCredentials {
