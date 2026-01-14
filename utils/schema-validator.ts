@@ -5,7 +5,7 @@ import { createSchema } from 'genson-js';
 import addFormats from "ajv-formats"
 import { PerformanceMetrics } from './performance-metrics'
 
-const SCHEMA_BASE_PATH = './responce-schemas'
+const SCHEMA_BASE_PATH = './response-schemas'
 const ajv = new Ajv({ allErrors: true })
 addFormats(ajv)
 
@@ -98,7 +98,7 @@ function applyDateTimeFormats(schema: any) {
 
 async function generateNewSchema(responseBody: object, schemaPath: string) {
     try {
-        const generatedSchema: any = await createSchema(responseBody); // semicolon to terminate statement
+        const generatedSchema: any = await createSchema(responseBody)
         applyDateTimeFormats(generatedSchema)
         await fs.mkdir(path.dirname(schemaPath), { recursive: true })
         await fs.writeFile(schemaPath, JSON.stringify(generatedSchema, null, 4), 'utf-8')
