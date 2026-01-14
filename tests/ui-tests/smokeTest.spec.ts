@@ -99,20 +99,21 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         
         // Update the article using helper
         const updatedArticle = await updateArticle(page, {})
-        
+
         // Verify article was updated
         await expect(articlePage.locator('h1').first()).toContainText(updatedArticle.title)
+        expect(updatedArticle.title).not.toEqual(originalArticle.title)
         await expect(articlePage.locator('.article-content')).toContainText(updatedArticle.body)
-        
+
         // Verify original content is no longer present
         await expect(articlePage.locator('.article-content')).not.toContainText(originalArticle.body)
-        
+
         // Delete the article
         await page.getByRole('button', { name: 'Delete Article' }).first().click()
-        
+
         // Verify we're redirected to home page after deletion
         await expect(page).toHaveURL(/\/$/)
-        
+
         // Verify updated article is no longer in the feed
         await expect(page.getByRole('heading', { name: updatedArticle.title })).not.toBeVisible()
     })
