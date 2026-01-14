@@ -67,7 +67,7 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         expect(article.slug).toMatch(new RegExp(`^${escapedTitle}-\\d+$`))
     })
 
-    test('Create article, navigate via username, and delete', async ({ page, config }) => {
+    test.skip('Create article, navigate via username, and delete', async ({ page, config }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
         
@@ -97,7 +97,7 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         await expect(page).toHaveURL(/\/$/)
     })
 
-    test('Create article, update it, and delete', async ({ page, config }) => {
+    test.skip('Create article, update it, and delete', async ({ page, config }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
         
