@@ -2,7 +2,9 @@ import { test } from '../../utils/fixtures'
 import { expect } from '../../utils/custom-expect'
 
 import { signIn, createArticle, updateArticle } from '../../helpers/ui-helpers'
+import { faker } from '@faker-js/faker'
 import path from 'path'
+
 
 test.describe('UI Smoke Tests - Authentication and Article Management', () => {
     // const context = await browser.newContext({
@@ -22,40 +24,50 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
     })
 
     test('Create new article and delete it from home', async ({ page, config }) => {
-        // Sign in
+        // Sign in (same as API test)
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
-        
-        // Create article
+
+        // Create article with slug
         const article = await createArticle(page)
-        
+        // Generate slug as in API: slugify title and add random number
+        const cleanTitle = article.title
+            .replace(/[^\w\s:'.-]/g, '')
+            .replace(/\s+/g, '-')
+        const escapedTitle = cleanTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        // Simulate slug as in API
+        const slug = `${cleanTitle}-${faker.number.int({ min: 1, max: 99999 })}`
+        article.slug = slug
+
         // Verify article was created and we're on the article page
         const articlePage = page.locator('.article-page')
         await expect(articlePage.locator('h1').first()).toContainText(article.title)
-        
+
         // Verify article content is displayed
         await expect(articlePage.locator('.article-content')).toContainText(article.body)
-        
+
         // Click on home to see the article in the feed
         await page.getByRole('link', { name: 'Home' }).first().click()
         await expect(page).toHaveURL(/\/$/)
-        
+
         // Verify article appears in the feed
         await expect(page.getByRole('heading', { name: article.title })).toBeVisible()
-        
+
         // Click on the article to open it
         await page.getByRole('heading', { name: article.title }).click()
-        
+
         // Delete the article
         await page.getByRole('button', { name: 'Delete Article' }).first().click()
-        
+
         // Verify we're redirected to home page after deletion
         await expect(page).toHaveURL(/\/$/)
-        
+
         // Verify article is no longer in the feed
         await expect(page.getByRole('heading', { name: article.title })).not.toBeVisible()
+        // Optionally check slug format
+        expect(article.slug).toMatch(new RegExp(`^${escapedTitle}-\\d+$`))
     })
 
-    test.skip('Create article, navigate via username, and delete', async ({ page, config }) => {
+    test('Create article, navigate via username, and delete', async ({ page, config }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
         
@@ -85,20 +97,34 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         await expect(page).toHaveURL(/\/$/)
     })
 
-    test.skip('Create article, update it, and delete', async ({ page, config }) => {
+    test('Create article, update it, and delete', async ({ page, config }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
         
         // Create article
         const originalArticle = await createArticle(page)
-        
+        // Generate slug for original article
+        const cleanTitle = originalArticle.title
+            .replace(/[^\w\s:'.-]/g, '')
+            .replace(/\s+/g, '-')
+        const escapedTitle = cleanTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const originalSlug = `${cleanTitle}-${faker.number.int({ min: 1, max: 99999 })}`
+        originalArticle.slug = originalSlug
+
         // Verify article was created
         const articlePage = page.locator('.article-page')
         await expect(articlePage.locator('h1').first()).toContainText(originalArticle.title)
         await expect(articlePage.locator('.article-content')).toContainText(originalArticle.body)
-        
+
         // Update the article using helper
         const updatedArticle = await updateArticle(page, {})
+        // Generate slug for updated article
+        const cleanTitleNew = updatedArticle.title
+            .replace(/[^\w\s:'.-]/g, '')
+            .replace(/\s+/g, '-')
+        const escapedTitleNew = cleanTitleNew.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const updatedSlug = `${cleanTitleNew}-${faker.number.int({ min: 1, max: 99999 })}`
+        updatedArticle.slug = updatedSlug
 
         // Verify article was updated
         await expect(articlePage.locator('h1').first()).toContainText(updatedArticle.title)
@@ -116,6 +142,8 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
 
         // Verify updated article is no longer in the feed
         await expect(page.getByRole('heading', { name: updatedArticle.title })).not.toBeVisible()
+        // Optionally check slug format
+        expect(updatedArticle.slug).toMatch(new RegExp(`^${escapedTitleNew}-\\d+$`))
     })
 
     test('Sign in fails with invalid credentials', async ({ page, config }) => {
