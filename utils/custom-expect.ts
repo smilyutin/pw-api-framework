@@ -43,7 +43,7 @@ export const expect = baseExpect.extend({
         } catch (e: any) {
             // Assertion failed, capture logs for error message
             pass = false
-            const logs = apiLogger.getRecentLogs()
+            const logs = apiLogger ? apiLogger.getRecentLogs() : 'No API logs available (mock or logger not initialized)'
             message = `${e.message}\n\nRecent API logs:\n${logs}`
 
         }
@@ -64,12 +64,12 @@ export const expect = baseExpect.extend({
             pass = true
             // Include logs when using .not.shouldEqual and the assertion passes (useful for negative cases)
             if (this.isNot) {
-                logs = apiLogger.getRecentLogs()
+                logs = apiLogger ? apiLogger.getRecentLogs() : 'No API logs available (mock or logger not initialized)'
             }
         } catch (e: any) {
             // Assertion failed, capture logs for error message
             pass = false
-            logs = apiLogger.getRecentLogs()
+            logs = apiLogger ? apiLogger.getRecentLogs() : 'No API logs available (mock or logger not initialized)'
         }
 
         const hint = this.isNot ? 'not' : ''
@@ -96,12 +96,12 @@ export const expect = baseExpect.extend({
             pass = true
             // Include logs for negative assertions that pass
             if (this.isNot) {
-                logs = apiLogger.getRecentLogs()
+                logs = apiLogger ? apiLogger.getRecentLogs() : 'No API logs available (mock or logger not initialized)'
             }
         } catch (e: any) {
             // Assertion failed, capture logs for debugging
             pass = false
-            logs = apiLogger.getRecentLogs()
+            logs = apiLogger ? apiLogger.getRecentLogs() : 'No API logs available (mock or logger not initialized)'
         }
 
         const hint = this.isNot ? 'not' : ''

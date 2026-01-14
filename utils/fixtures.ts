@@ -2,6 +2,7 @@
 // Centralizes setup for all API tests: base URL, logger, and request handler initialization.
 
 import { test as base } from '@playwright/test'
+import { test as mockTest } from './mock-api-fixture'
 import { RequestHandler } from '../utils/request-handler'
 import { APILogger } from '../utils/logger'
 import { setCustomExpectLogger } from './custom-expect'
@@ -15,20 +16,17 @@ export type TestOptions = {
     config: typeof config; // Configuration object imported from api-test.config.ts
 }
 
-export type WorkweFixture = {
+export type WorkerFixture = {
     authToken: string
 }
 // Extended Playwright test with custom 'api' fixture
-export const test = base.extend<TestOptions, WorkweFixture>({ 
+export const test = base.extend<TestOptions, WorkerFixture>({
     authToken: [ async ({}, use) => {
         const authToken = await createToken(config.userEmail, config.userPassword)
         await use(authToken)
     }, {scope: 'worker'}],
 
-    // API fixture: provides a configured RequestHandler instance for each test
     api: async({request, authToken}, use)  => {
-        // Base URL for all API calls
-
         // Logger instance for redacting secrets and capturing request/response details
         const logger = new APILogger()
         // Attach logger to custom expect matchers for enriched error messages
