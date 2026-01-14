@@ -2,8 +2,13 @@ import { test } from '../../utils/fixtures'
 import { expect } from '../../utils/custom-expect'
 
 import { signIn, createArticle, updateArticle } from '../../helpers/ui-helpers'
+import path from 'path'
 
 test.describe('UI Smoke Tests - Authentication and Article Management', () => {
+    // const context = await browser.newContext({
+    //     recordHar: { path: 'smokeTest.har', mode: 'minimal' }
+    // })
+    
     test('User can sign in successfully', async ({ page, config }) => {
         // Use helper function to sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)

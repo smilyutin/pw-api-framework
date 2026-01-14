@@ -365,16 +365,16 @@ test.describe('API Token Replay Vulnerability - Fuzz Testing', () => {
     test('Fuzz: Truncated tokens', async ({ api }) => {
         const tokenValue = validToken.replace('Token ', '')
         const truncationLengths = [1, 5, 10, Math.floor(tokenValue.length / 2), tokenValue.length - 1]
-        
+
         for (const length of truncationLengths) {
             const truncatedToken = 'Token ' + tokenValue.substring(0, length)
-            
+
             const response = await api
                 .path('/user')
                 .clearAuth()
                 .headers({ Authorization: truncatedToken })
                 .getRequest(401)
-            
+            await expect(response).shouldMatchSchema('user', 'GET_user')
             expect(response.status).shouldEqual('error')
         }
     })
