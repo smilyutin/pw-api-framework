@@ -24,16 +24,8 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         // Sign in (same as API test)
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
 
-        // Create article with slug
+        // Create article - helper returns real slug from URL
         const article = await createArticle(page)
-        // Generate slug as in API: slugify title and add random number
-        const cleanTitle = article.title
-            .replace(/[^\w\s:'.-]/g, '')
-            .replace(/\s+/g, '-')
-        const escapedTitle = cleanTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        // Simulate slug as in API
-        const slug = `${cleanTitle}-${faker.number.int({ min: 1, max: 99999 })}`
-        article.slug = slug
 
         // Verify article was created and we're on the article page
         const articlePage = page.locator('.article-page')
@@ -41,6 +33,9 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
 
         // Verify article content is displayed
         await expect(articlePage.locator('.article-content')).toContainText(article.body)
+
+        // Verify slug was captured from URL
+        expect(article.slug).toBeTruthy()
 
         // Click on home to see the article in the feed
         await page.getByRole('link', { name: 'Home' }).first().click()
@@ -60,8 +55,6 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
 
         // Verify article is no longer in the feed
         await expect(page.getByRole('heading', { name: article.title })).not.toBeVisible()
-        // Optionally check slug format
-        expect(article.slug).toMatch(new RegExp(`^${escapedTitle}-\\d+$`))
     })
 
     test.skip('Create article, navigate via username, and delete', async ({ page, config }) => {
@@ -97,31 +90,18 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
     test.skip('Create article, update it, and delete', async ({ page, config }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
-        
-        // Create article
+
+        // Create article - helper returns real slug from URL
         const originalArticle = await createArticle(page)
-        // Generate slug for original article
-        const cleanTitle = originalArticle.title
-            .replace(/[^\w\s:'.-]/g, '')
-            .replace(/\s+/g, '-')
-        const escapedTitle = cleanTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        const originalSlug = `${cleanTitle}-${faker.number.int({ min: 1, max: 99999 })}`
-        originalArticle.slug = originalSlug
 
         // Verify article was created
         const articlePage = page.locator('.article-page')
         await expect(articlePage.locator('h1').first()).toContainText(originalArticle.title)
         await expect(articlePage.locator('.article-content')).toContainText(originalArticle.body)
+        expect(originalArticle.slug).toBeTruthy()
 
-        // Update the article using helper
+        // Update the article using helper - returns real slug from URL
         const updatedArticle = await updateArticle(page, {})
-        // Generate slug for updated article
-        const cleanTitleNew = updatedArticle.title
-            .replace(/[^\w\s:'.-]/g, '')
-            .replace(/\s+/g, '-')
-        const escapedTitleNew = cleanTitleNew.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        const updatedSlug = `${cleanTitleNew}-${faker.number.int({ min: 1, max: 99999 })}`
-        updatedArticle.slug = updatedSlug
 
         // Verify article was updated
         await expect(articlePage.locator('h1').first()).toContainText(updatedArticle.title)
@@ -131,6 +111,9 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         // Verify original content is no longer present
         await expect(articlePage.locator('.article-content')).not.toContainText(originalArticle.body)
 
+        // Verify updated slug was captured
+        expect(updatedArticle.slug).toBeTruthy()
+
         // Delete the article
         await page.getByRole('button', { name: 'Delete Article' }).first().click()
 
@@ -139,8 +122,6 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
 
         // Verify updated article is no longer in the feed
         await expect(page.getByRole('heading', { name: updatedArticle.title })).not.toBeVisible()
-        // Optionally check slug format
-        expect(updatedArticle.slug).toMatch(new RegExp(`^${escapedTitleNew}-\\d+$`))
     })
 
     test('Sign in fails with invalid credentials', async ({ page, config }) => {
