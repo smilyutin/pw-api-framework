@@ -15,9 +15,16 @@ const config = {
 
 if(env === 'dev'){
     config.apiUrl = 'https://conduit-api.bondaracademy.com/api';
-    if(process.env.DEV_USERNAME && process.env.DEV_PASSWORD) {
-        config.userEmail = process.env.DEV_USERNAME
-        config.userPassword = process.env.DEV_PASSWORD
+    const devUser = process.env.DEV_USERNAME
+    const devPass = process.env.DEV_PASSWORD
+
+    if ((devUser && !devPass) || (!devUser && devPass)) {
+        throw new Error('DEV_USERNAME and DEV_PASSWORD must be set together')
+    }
+
+    if (devUser && devPass) {
+        config.userEmail = devUser
+        config.userPassword = devPass
     }
 }
 if(env === 'prod'){
