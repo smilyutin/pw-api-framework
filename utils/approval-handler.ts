@@ -1,3 +1,6 @@
+// MCP action approval logic - handles approval requests for destructive actions, with support for CLI/web/API interfaces, 
+// logging, and statistics. Designed for integration with MCP to ensure secure handling of high-risk operations.
+
 import * as readline from 'readline';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -129,7 +132,7 @@ export class ApprovalHandler {
      */
     private async requestApprovalCLI(request: ApprovalRequest): Promise<{ approved: boolean; reason?: string; approver?: string }> {
         console.log('\n' + '='.repeat(80));
-        console.log('🚨 APPROVAL REQUIRED - DESTRUCTIVE ACTION DETECTED 🚨');
+        console.log(' APPROVAL REQUIRED - DESTRUCTIVE ACTION DETECTED 🚨');
         console.log('='.repeat(80));
         console.log(`Request ID:   ${request.id}`);
         console.log(`User:         ${request.user}`);

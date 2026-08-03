@@ -23,6 +23,17 @@ export type WorkerFixture = {
 export const test = base.extend<TestOptions, WorkerFixture>({
     authToken: [ async ({}, use) => {
         const authToken = await createToken(config.userEmail, config.userPassword)
+        // Save token to CSV
+        const fs = await import('fs')
+        const path = require('path')
+        const csvPath = path.resolve(process.cwd(), 'auth-tokens.csv')
+        const header = 'timestamp,token\n'
+        const row = `${new Date().toISOString()},${authToken}\n`
+        if (!fs.existsSync(csvPath)) {
+            fs.writeFileSync(csvPath, header + row)
+        } else {
+            fs.appendFileSync(csvPath, row)
+        }
         await use(authToken)
     }, {scope: 'worker'}],
 
