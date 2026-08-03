@@ -67,7 +67,7 @@ test('Get Test Tags', async ({ api }) => {
     expect(response.tags[0]).shouldEqual('Test')
     expect(response.tags.length).toBeLessThanOrEqual(10)
 })
-test('Create and Delete Article', async ({ api }) => {
+test('Create and Delete Article', async ({ api, articleCleanup }) => {
     //
     // const articleRequest = JSON.parse(JSON.stringify(articleRequestPayload))
     // articleRequest.article.title = "Object title"
@@ -80,6 +80,8 @@ test('Create and Delete Article', async ({ api }) => {
     await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles')
     expect(createArticleResponse.article.title).shouldEqual(articleRequest.article.title)
     const slagID = createArticleResponse.article.slug
+    articleCleanup.setApi(api)
+    articleCleanup.track(slagID)
     const articlesResponse = await api
         .path('/articles')
         .params({ limit: 10, offset: 0 })
@@ -102,7 +104,7 @@ test('Create and Delete Article', async ({ api }) => {
     expect(articlesResponseCheck.articles[0].title).not.shouldEqual(articleRequest.article.title)
 })
 
-test('Create, Update and Delete Article', async ({ api }) => {
+test('Create, Update and Delete Article', async ({ api, articleCleanup }) => {
     const articleTitle = faker.lorem.sentence(3)
     const articleRequest = JSON.parse(JSON.stringify(articleRequestPayload))
     articleRequest.article.title = articleTitle
@@ -115,6 +117,8 @@ test('Create, Update and Delete Article', async ({ api }) => {
     await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles')
     expect(createArticleResponse.article.title).shouldEqual(articleTitle);
     const slagID = createArticleResponse.article.slug
+    articleCleanup.setApi(api)
+    articleCleanup.track(slagID)
 
     const articleTitleNew = faker.lorem.sentence(3)
     articleRequest.article.title = articleTitleNew

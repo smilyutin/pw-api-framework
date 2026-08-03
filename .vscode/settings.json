@@ -1,11 +1,10 @@
 {
-  "json.schemas": [
-    {
-      "fileMatch": [
-        "/mcp-servers.json",
-        "mcp-servers.json"
-      ],
-      "url": "./schemas/mcp-servers.v1.json"
-    }
-  ]
+  "[python]": {
+    "defaultInterpreterPath": ""
+  },
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": false,
+  "python.linting.enabled": false,
+  "python.formatting.provider": "none",
+  "extensions.ignoreRecommendations": false
 }

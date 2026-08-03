@@ -4,6 +4,10 @@ import { expect } from '../../utils/custom-expect'
 import { signIn, createArticle, updateArticle } from '../../helpers/ui-helpers'
 
 test.describe('UI Smoke Tests - Authentication and Article Management', () => {
+    test.afterEach(async ({ articleCleanup }) => {
+        // Automatic cleanup of any remaining articles after each test
+        await articleCleanup.cleanupAll()
+    })
     // const context = await browser.newContext({
     //     recordHar: { path: 'smokeTest.har', mode: 'minimal' }
     // })
@@ -20,12 +24,14 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         await expect(page).toHaveURL(/\/$/)
     })
 
-    test('Create new article and delete it from home', async ({ page, config }) => {
+    test('Create new article and delete it from home', async ({ page, config, api, articleCleanup }) => {
         // Sign in (same as API test)
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
 
         // Create article - helper returns real slug from URL
         const article = await createArticle(page)
+        articleCleanup.setApi(api)
+        articleCleanup.track(article.slug!)
 
         // Verify article was created and we're on the article page
         const articlePage = page.locator('.article-page')
@@ -57,12 +63,14 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         await expect(page.getByRole('heading', { name: article.title })).not.toBeVisible()
     })
 
-    test.skip('Create article, navigate via username, and delete', async ({ page, config }) => {
+    test('Create article, navigate via username, and delete', async ({ page, config, api, articleCleanup }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
-        
+
         // Create article
         const article = await createArticle(page)
+        articleCleanup.setApi(api)
+        articleCleanup.track(article.slug!)
         
         // Verify article was created
         await expect(page.locator('h1').first()).toContainText(article.title)
@@ -87,12 +95,14 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         await expect(page).toHaveURL(/\/$/)
     })
 
-    test.skip('Create article, update it, and delete', async ({ page, config }) => {
+    test('Create article, update it, and delete', async ({ page, config, api, articleCleanup }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
 
         // Create article - helper returns real slug from URL
         const originalArticle = await createArticle(page)
+        articleCleanup.setApi(api)
+        articleCleanup.track(originalArticle.slug!)
 
         // Verify article was created
         const articlePage = page.locator('.article-page')

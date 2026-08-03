@@ -14,11 +14,40 @@ import { PerformanceMetrics } from './performance-metrics'
 export type TestOptions = {
     api: RequestHandler;  // Fluent API client for building and executing HTTP requests
     config: typeof config; // Configuration object imported from api-test.config.ts
+    articleCleanup: ArticleCleanup; // Tracks and cleans up articles created during test
 }
 
 export type WorkerFixture = {
     authToken: string
 }
+
+export class ArticleCleanup {
+    private articleSlugs: Set<string> = new Set()
+    private api: RequestHandler | null = null
+
+    setApi(api: RequestHandler) {
+        this.api = api
+    }
+
+    track(slug: string) {
+        this.articleSlugs.add(slug)
+    }
+
+    async cleanupAll() {
+        if (!this.api) return
+        for (const slug of this.articleSlugs) {
+            try {
+                await this.api
+                    .path(`/articles/${slug}`)
+                    .deleteRequest(204)
+            } catch (error) {
+                console.warn(`Failed to cleanup article ${slug}:`, error)
+            }
+        }
+        this.articleSlugs.clear()
+    }
+}
+
 // Extended Playwright test with custom 'api' fixture
 export const test = base.extend<TestOptions, WorkerFixture>({
     authToken: [ async ({}, use) => {
@@ -49,7 +78,13 @@ export const test = base.extend<TestOptions, WorkerFixture>({
     },
     config: async ({}, use) => {
         await use(config)
-     }
+    },
+    articleCleanup: async ({}, use) => {
+        const cleanup = new ArticleCleanup()
+        await use(cleanup)
+        // Automatic cleanup after test
+        await cleanup.cleanupAll()
+    }
 })
 
 test.afterAll(async () => {

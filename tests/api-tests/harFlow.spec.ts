@@ -3,7 +3,7 @@ import { expect } from '../../utils/custom-expect'
 import { faker } from '@faker-js/faker'
 import articleRequestPayload from '../../request-objects/POST-article.json'
 //comments
-test('HAR Flow - Article Creation and Comment Workflow', async ({ api }) => {
+test('HAR Flow - Article Creation and Comment Workflow', async ({ api, articleCleanup }) => {
     // Step 1: Create article
     const articleRequest = structuredClone(articleRequestPayload)
     articleRequest.article.title = faker.lorem.words(5)
@@ -16,6 +16,8 @@ test('HAR Flow - Article Creation and Comment Workflow', async ({ api }) => {
         .postRequest(201)
     await expect(createArticleResponse).shouldMatchSchema('articles', 'POST_articles')
     const articleSlug = createArticleResponse.article.slug
+    articleCleanup.setApi(api)
+    articleCleanup.track(articleSlug)
 
     // Step 2: Get created article by slug
     const getArticleBySlugResponse = await api
@@ -50,9 +52,5 @@ test('HAR Flow - Article Creation and Comment Workflow', async ({ api }) => {
     await expect(getCommentsAfterCreateResponse).shouldMatchSchema('articles', 'GET_articles_slug_comments')
     expect(getCommentsAfterCreateResponse.comments.length).shouldEqual(1)
     expect(getCommentsAfterCreateResponse.comments[0].body).shouldEqual(commentRequest.comment.body)
-
-    // Cleanup: Delete the article
-    await api
-        .path(`/articles/${articleSlug}`)
-        .deleteRequest(204)
+    // Article will be automatically cleaned up by fixture
 })

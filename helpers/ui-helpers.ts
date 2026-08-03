@@ -130,3 +130,19 @@ export async function updateArticle(
 
     return data
 }
+
+/**
+ * Deletes an article by slug via API (used for cleanup in tests)
+ */
+export async function deleteArticleBySlug(apiUrl: string, slug: string, token: string): Promise<void> {
+    try {
+        await fetch(`${apiUrl}/api/articles/${slug}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: token
+            }
+        })
+    } catch (error) {
+        console.warn(`Failed to delete article ${slug}:`, error)
+    }
+}
