@@ -31,10 +31,10 @@ export async function signIn(page: Page, credentials: LoginCredentials, uiUrl: s
 /**
  * Creates a new article through the UI
  * Assumes user is already signed in
- * Returns the article data that was used
+ * Returns the article data that was used, including the real slug from the URL
  */
 export async function createArticle(
-    page: Page, 
+    page: Page,
     articleData?: Partial<ArticleData>
 ): Promise<ArticleData> {
     // Generate article data if not provided
@@ -44,29 +44,33 @@ export async function createArticle(
         body: articleData?.body ?? faker.lorem.paragraphs(3),
         tags: articleData?.tags ?? faker.lorem.word()
     }
-    
+
     // Navigate to New Article page
     await page.getByRole('link', { name: 'New Article' }).click()
-    
+
     // Fill in article form
     await page.getByPlaceholder('Article Title').fill(data.title)
     await page.getByPlaceholder('What\'s this article about?').fill(data.description)
     await page.getByPlaceholder('Write your article (in markdown)').fill(data.body)
     await page.getByPlaceholder('Enter tags').fill(data.tags)
-    
+
     // Publish article
     await page.getByRole('button', { name: 'Publish Article' }).click()
-    
+
     // Wait for article page to load
     await page.waitForURL(/.*article\/.*/)
-    
+
+    // Extract real slug from the URL
+    const slug = new URL(page.url()).pathname.split('/').pop()
+    data.slug = slug
+
     return data
 }
 
 /**
  * Updates an existing article through the UI
  * Assumes you're already on the article page
- * Returns the updated article data
+ * Returns the updated article data, including the real slug from the URL
  */
 export async function updateArticle(
     page: Page,
@@ -79,26 +83,26 @@ export async function updateArticle(
         body: updatedData.body ?? faker.lorem.paragraphs(3),
         tags: updatedData.tags ?? faker.lorem.word()
     }
-    
+
     // Click Edit Article button
     await page.getByRole('link', { name: 'Edit Article' }).first().click()
-    
+
     // Verify we're on the editor page
     await page.waitForURL(/.*editor\/.*/)
-    
+
     // Wait for form to be ready
     await page.getByPlaceholder('Article Title').waitFor({ state: 'visible' })
-    
+
     // Clear and fill in updated data
     await page.getByPlaceholder('Article Title').fill('')
     await page.getByPlaceholder('Article Title').fill(data.title)
-    
+
     await page.getByPlaceholder('What\'s this article about?').fill('')
     await page.getByPlaceholder('What\'s this article about?').fill(data.description)
-    
+
     await page.getByPlaceholder('Write your article (in markdown)').fill('')
     await page.getByPlaceholder('Write your article (in markdown)').fill(data.body)
-    
+
     // Handle tags - remove existing tags if present
     const tagRemoveButtons = page.locator('.tag-list .ion-close-round')
     const tagCount = await tagRemoveButtons.count()
@@ -106,16 +110,20 @@ export async function updateArticle(
         await tagRemoveButtons.first().click()
         await page.waitForTimeout(100)
     }
-    
+
     // Add new tag
     await page.getByPlaceholder('Enter tags').fill(data.tags)
     await page.keyboard.press('Enter')
-    
+
     // Publish updated article
     await page.getByRole('button', { name: 'Publish Article' }).click()
-    
+
     // Wait for article page to load
     await page.waitForURL(/.*article\/.*/)
-    
+
+    // Extract real slug from the URL
+    const slug = new URL(page.url()).pathname.split('/').pop()
+    data.slug = slug
+
     return data
 }
