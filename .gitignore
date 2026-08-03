@@ -20,6 +20,8 @@ node_modules/
 .env
 .env.*
 
+auth-tokens.cvs
+
 # Logs
 *.log
 npm-debug.log*
