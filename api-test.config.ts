@@ -15,11 +15,10 @@ const config = {
 
 if(env === 'dev'){
     config.apiUrl = 'https://conduit-api.bondaracademy.com/api';
-    if(!process.env.DEV_USERNAME || !process.env.DEV_PASSWORD) {
-        throw Error('DEV_USERNAME and DEV_PASSWORD must be set in environment variables');
+    if(process.env.DEV_USERNAME && process.env.DEV_PASSWORD) {
+        config.userEmail = process.env.DEV_USERNAME
+        config.userPassword = process.env.DEV_PASSWORD
     }
-    config.userEmail = process.env.DEV_USERNAME 
-    config.userPassword = process.env.DEV_PASSWORD
 }
 if(env === 'prod'){
     config.apiUrl = 'https://conduit-api.bondaracademy.com/api';
