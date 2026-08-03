@@ -61,9 +61,12 @@ export async function createArticle(
     await page.waitForURL(/.*article\/.*/)
 
     // Extract real slug from the URL
-    const slug = new URL(page.url()).pathname.split('/').pop()
+    const url = new URL(page.url())
+    const slug = url.pathname.split('/').filter(Boolean).pop()
+    if (!slug) {
+        throw new Error(`Could not extract article slug from URL: ${page.url()}`)
+    }
     data.slug = slug
-
     return data
 }
 
