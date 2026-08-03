@@ -1,3 +1,4 @@
+// @ts-check 
 // Custom expect matchers that integrate with APILogger to include recent API logs in error messages.
 // Extends Playwright's base expect with domain-specific matchers for clearer test assertions.
 

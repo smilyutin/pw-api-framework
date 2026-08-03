@@ -150,7 +150,7 @@ class CollectedConfig:
         )
 
 
-def _parse_source(command: str, args: list[str], raw_config: dict = None) -> tuple[str, str]:
+def _parse_source(command: str, args: list[str], raw_config: Optional[dict] = None) -> tuple[str, str]:
     """Parse command/args to determine source and server type"""
     command = command or ""
     raw_config = raw_config or {}

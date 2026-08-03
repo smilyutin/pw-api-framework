@@ -1,3 +1,5 @@
+//MCP security tests for ApprovalHandler class and withApproval wrapper function
+
 import { test } from '@playwright/test';
 import { ApprovalHandler, withApproval } from '../utils/approval-handler';
 

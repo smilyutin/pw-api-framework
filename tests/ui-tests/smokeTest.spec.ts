@@ -2,9 +2,6 @@ import { test } from '../../utils/fixtures'
 import { expect } from '../../utils/custom-expect'
 
 import { signIn, createArticle, updateArticle } from '../../helpers/ui-helpers'
-import { faker } from '@faker-js/faker'
-import path from 'path'
-
 
 test.describe('UI Smoke Tests - Authentication and Article Management', () => {
     // const context = await browser.newContext({
