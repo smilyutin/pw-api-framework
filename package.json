@@ -12,12 +12,15 @@
   "type": "commonjs",
   "devDependencies": {
     "@faker-js/faker": "^10.2.0",
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^25.0.7",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "dotenv": "^17.2.3",
     "genson-js": "^0.0.8",
     "husky": "^9.0.11"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2"
   }
 }

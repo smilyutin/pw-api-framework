@@ -67,7 +67,7 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         expect(article.slug).toMatch(new RegExp(`^${escapedTitle}-\\d+$`))
     })
 
-    test.skip('Create article, navigate via username, and delete', async ({ page, config }) => {
+    test('Create article, navigate via username, and delete', async ({ page, config }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
         
@@ -97,7 +97,7 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         await expect(page).toHaveURL(/\/$/)
     })
 
-    test.skip('Create article, update it, and delete', async ({ page, config }) => {
+    test('Create article, update it, and delete', async ({ page, config }) => {
         // Sign in
         await signIn(page, { email: config.userEmail, password: config.userPassword }, config.uiUrl)
         
@@ -168,4 +168,92 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         // Verify we're still on login page
         await expect(page).toHaveURL(/.*login/)
     })
+
+    test('Sign in button is not visible with empty fields', async ({ page, config }) => {
+    await page.goto(config.uiUrl)
+    await page.getByRole('link', { name: 'Sign in' }).click()
+
+    // Email empty, password filled
+    await page.getByPlaceholder('Email').fill('')
+    await page.getByPlaceholder('Password').fill('somepassword')
+    await expect(page.getByRole('button', { name: 'Sign in' })).toBeDisabled()
+
+    // Email filled, password empty
+    await page.getByPlaceholder('Email').fill('user@test.com')
+    await page.getByPlaceholder('Password').fill('')
+    await expect(page.getByRole('button', { name: 'Sign in' })).toBeDisabled()
+
+    // Both empty
+    await page.getByPlaceholder('Email').fill('')
+    await page.getByPlaceholder('Password').fill('')
+    await expect(page.getByRole('button', { name: 'Sign in' })).toBeDisabled()
+})
+
+test('Sign in fails with invalid email format', async ({ page, config }) => {
+    await page.goto(config.uiUrl)
+    await page.getByRole('link', { name: 'Sign in' }).click()
+    await page.getByPlaceholder('Email').fill('not-an-email')
+    await page.getByPlaceholder('Password').fill('wrongpassword')
+    await page.getByRole('button', { name: 'Sign in' }).click()
+    await expect(page.locator('.error-messages')).toBeVisible()
+    await expect(page.locator('.error-messages')).toContainText('email or password is invalid')
+    await expect(page).toHaveURL(/.*login/)
+})
+
+test('Password field is masked', async ({ page, config }) => {
+    await page.goto(config.uiUrl)
+    await page.getByRole('link', { name: 'Sign in' }).click()
+    const passwordInput = page.getByPlaceholder('Password')
+    await expect(passwordInput).toHaveAttribute('type', 'password')
+})
+
+test('Session persists after reload', async ({ page, config }) => {
+    await page.goto(config.uiUrl)
+    await page.getByRole('link', { name: 'Sign in' }).click()
+    await page.getByPlaceholder('Email').fill(config.userEmail)
+    await page.getByPlaceholder('Password').fill(config.userPassword)
+    await page.getByRole('button', { name: 'Sign in' }).click()
+    await expect(page.getByRole('link', { name: 'New Article' })).toBeVisible()
+    await page.reload()
+    await expect(page.getByRole('link', { name: 'New Article' })).toBeVisible()
+})
+
+test('User can log out via settings page', async ({ page, config }) => {
+    // Log in first
+    await page.goto(config.uiUrl)
+    await page.getByRole('link', { name: 'Sign in' }).click()
+    await page.getByPlaceholder('Email').fill(config.userEmail)
+    await page.getByPlaceholder('Password').fill(config.userPassword)
+    await page.getByRole('button', { name: 'Sign in' }).click()
+    await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible()
+
+    // Click on username/avatar in upper right (e.g., Devnodev)
+    await page.locator('app-layout-header').getByRole('link', { name: config.userEmail.split('@')[0] }).click()
+
+    // Click on "Edit Profile Settings"
+    await page.getByRole('link', { name: 'Edit Profile Settings' }).click()
+
+    // Click on "Or click here to logout."
+    await page.getByRole('button', { name: 'Or click here to logout.' }).click()
+
+    // Assert user is logged out (Sign in link visible, Settings link not visible)
+    await expect(page.getByRole('link', { name: 'Home' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Settings' })).not.toBeVisible()
+})
+
+test('Multiple failed login attempts show error', async ({ page, config }) => {
+    await page.goto(config.uiUrl)
+    await page.getByRole('link', { name: 'Sign in' }).click()
+    for (let i = 0; i < 3; i++) {
+        await page.getByPlaceholder('Email').fill('invalid@test.com')
+        await page.getByPlaceholder('Password').fill('wrongpassword')
+        await page.getByRole('button', { name: 'Sign in' }).click()
+        await expect(page.locator('.error-messages')).toBeVisible()
+        await expect(page.locator('.error-messages')).toContainText('email or password is invalid')
+        await expect(page).toHaveURL(/.*login/)
+    }
+})
+
+
 })

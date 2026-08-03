@@ -51,4 +51,8 @@ test('HAR Flow - Article Creation and Comment Workflow', async ({ api }) => {
     expect(getCommentsAfterCreateResponse.comments.length).shouldEqual(1)
     expect(getCommentsAfterCreateResponse.comments[0].body).shouldEqual(commentRequest.comment.body)
 
+    // Cleanup: Delete the article
+    await api
+        .path(`/articles/${articleSlug}`)
+        .deleteRequest(204)
 })

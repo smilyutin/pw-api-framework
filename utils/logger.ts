@@ -1,3 +1,4 @@
+// @ts-check
 // APILogger: Captures and redacts sensitive information from HTTP requests and responses.
 // Implements OWASP security practices by masking tokens, passwords, API keys, and other secrets
 // in headers and request/response bodies. Provides recent logs for enriched error messages.
