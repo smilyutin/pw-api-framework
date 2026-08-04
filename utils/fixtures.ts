@@ -41,6 +41,10 @@ export class ArticleCleanup {
                     .path(`/articles/${slug}`)
                     .deleteRequest(204)
             } catch (error) {
+                // Treat 404 as success - article already deleted (idempotent cleanup)
+                if (error instanceof Error && error.message.includes('but got 404')) {
+                    continue
+                }
                 console.warn(`Failed to cleanup article ${slug}:`, error)
             }
         }
