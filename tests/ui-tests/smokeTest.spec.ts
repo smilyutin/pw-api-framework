@@ -113,13 +113,19 @@ test.describe('UI Smoke Tests - Authentication and Article Management', () => {
         // Update the article using helper - returns real slug from URL
         const updatedArticle = await updateArticle(page, {})
 
+        // Ensure page reflects the updated article route/content
+        await expect(page).toHaveURL(new RegExp(`/article/${updatedArticle.slug}$`))
+
+        // Re-acquire fresh locators after update/navigation
+        const updatedArticlePage = page.locator('.article-page')
+
         // Verify article was updated
-        await expect(articlePage.locator('h1').first()).toContainText(updatedArticle.title)
+        await expect(updatedArticlePage.locator('h1').first()).toContainText(updatedArticle.title)
         expect(updatedArticle.title).not.toEqual(originalArticle.title)
-        await expect(articlePage.locator('.article-content')).toContainText(updatedArticle.body)
+        await expect(updatedArticlePage.locator('.article-content')).toContainText(updatedArticle.body)
 
         // Verify original content is no longer present
-        await expect(articlePage.locator('.article-content')).not.toContainText(originalArticle.body)
+        await expect(updatedArticlePage.locator('.article-content')).not.toContainText(originalArticle.body)
 
         // Verify updated slug was captured
         expect(updatedArticle.slug).toBeTruthy()
